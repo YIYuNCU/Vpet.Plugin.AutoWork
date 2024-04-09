@@ -5,7 +5,7 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:ll="clr-namespace:LinePutScript.Localization.WPF;assembly=LinePutScript.Localization.WPF"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:VPET.Evian.AutoWork"
-        mc:Ignorable="d" xmlns:pu="clr-namespace:Panuon.WPF.UI;assembly=Panuon.WPF.UI" Title="{ll:Str AutoWork 设置}" Width="354"
+        mc:Ignorable="d" xmlns:pu="clr-namespace:Panuon.WPF.UI;assembly=Panuon.WPF.UI" Title="{ll:Str AutoWork 设置}" Width="375"
         FontSize="16" Height="273" ResizeMode="NoResize" WindowState="Normal" SizeToContent="Height"
         Background="{DynamicResource PrimaryLighter}" Closed="Window_Closed">
     <Window.Resources>
@@ -14,11 +14,11 @@
 
     <Grid Margin="8,8,8,8" Background="{DynamicResource PrimaryLighter}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="80" />
-            <ColumnDefinition Width="80" />
-            <ColumnDefinition Width="80" />
-            <ColumnDefinition Width="80"/>
-            <ColumnDefinition Width="80" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
@@ -29,37 +29,40 @@
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
-        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="{ll:Str 启用}" VerticalAlignment="Center" Margin="20,0,0,0"/>
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 启用}" VerticalAlignment="Center"  />
 
         <pu:Switch x:Name="SwitchOn" BorderBrush="{DynamicResource DARKPrimaryDark}"
          CheckedBackground="{DynamicResource DARKPrimary}" CheckedBorderBrush="{DynamicResource DARKPrimary}"
          Background="Transparent" BoxWidth="35" BoxHeight="18" ToggleSize="14" ToggleShadowColor="{x:Null}"
          ToggleBrush="{DynamicResource DARKPrimaryDark}" 
-         CheckedToggleBrush="{DynamicResource DARKPrimaryText}" Grid.Column="1" Margin="22,0,22,0" />
+         CheckedToggleBrush="{DynamicResource DARKPrimaryText}" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
         <Button pu:ButtonHelper.CornerRadius="4" Content="{ll:Str 保存设置}" Background="{DynamicResource SecondaryLight}"
-        BorderBrush="{DynamicResource SecondaryDark}" BorderThickness="2" Grid.Row="4" Margin="5,5,5,5"
-        Grid.ColumnSpan="4" Click="Save_Click" />
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 最小收支比}" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1"/>
-        <TextBox Grid.Column="3" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="70" x:Name="WorkSet" Grid.Row="1" />
-        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="{ll:Str 工作}" VerticalAlignment="Center" Margin="20,0,0,0" Grid.Row="1"/>
-        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="{ll:Str 学习}" VerticalAlignment="Center" Grid.Row="2" Margin="20,0,0,0"/>
-        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="{ll:Str 请关闭启用开关后再结束工作以彻底关闭工作}" VerticalAlignment="Top" Grid.Row="5" Width="322" Grid.ColumnSpan="5" Margin="-1,4,0,0"/>
+        BorderBrush="{DynamicResource SecondaryDark}" BorderThickness="2" Grid.Row="4" Margin="9,5,1,5"
+        Grid.ColumnSpan="5" Click="Save_Click" />
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 最小收支比}" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1" />
+        <TextBox Grid.Column="3" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="70" x:Name="WorkSet" Grid.Row="1"   />
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 工作}" VerticalAlignment="Center" Grid.Row="1"  />
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 学习}" VerticalAlignment="Center" Grid.Row="2"  />
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="{ll:Str 请关闭启用开关后再结束工作以彻底关闭工作}" VerticalAlignment="Center" Grid.Row="5" Width="322" Grid.ColumnSpan="5" Margin="10,0,0,0"  />
         <pu:Switch x:Name="Work" BorderBrush="{DynamicResource DARKPrimaryDark}"
             CheckedBackground="{DynamicResource DARKPrimary}" CheckedBorderBrush="{DynamicResource DARKPrimary}"
             Background="Transparent" BoxWidth="35" BoxHeight="18" ToggleSize="14" ToggleShadowColor="{x:Null}"
             ToggleBrush="{DynamicResource DARKPrimaryDark}" 
-            CheckedToggleBrush="{DynamicResource DARKPrimaryText}" Grid.Column="1" Margin="22,0,22,0" Grid.Row="1" />
+            CheckedToggleBrush="{DynamicResource DARKPrimaryText}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
         <pu:Switch x:Name="Study" BorderBrush="{DynamicResource DARKPrimaryDark}"
             CheckedBackground="{DynamicResource DARKPrimary}" CheckedBorderBrush="{DynamicResource DARKPrimary}"
             Background="Transparent" BoxWidth="35" BoxHeight="18" ToggleSize="14" ToggleShadowColor="{x:Null}"
             ToggleBrush="{DynamicResource DARKPrimaryDark}" 
-            CheckedToggleBrush="{DynamicResource DARKPrimaryText}" Grid.Column="1" Margin="22,0,22,0" Grid.Row="2" />
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 最小收支比}" VerticalAlignment="Center" Grid.Column="2" Grid.Row="2"/>
-        <TextBox Grid.Column="3" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="70" x:Name="StudySet" Grid.Row="2" />
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 最小金钱}" VerticalAlignment="Center" Grid.Column="2" Grid.Row="3"/>
-        <TextBox Grid.Column="3" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="70" x:Name="MoneySet" Grid.Row="3" />
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 最小收益}" VerticalAlignment="Center" Grid.Column="2" Visibility="Hidden"/>
-        <TextBox Grid.Column="3" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="70" x:Name="MinDeposit" Visibility="Hidden" />
+            CheckedToggleBrush="{DynamicResource DARKPrimaryText}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 最小收支比}" VerticalAlignment="Center" Grid.Column="2" Grid.Row="2"  />
+        <TextBox Grid.Column="3" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="70" x:Name="StudySet" Grid.Row="2"  />
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 最小金钱}" VerticalAlignment="Center" Grid.Column="2" Grid.Row="3"  />
+        <TextBox Grid.Column="3" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="70" x:Name="MoneySet" Grid.Row="3"   />
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 最小收益}" VerticalAlignment="Center" Grid.Column="2" Visibility="Hidden"  />
+        <TextBox Grid.Column="3" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="70" x:Name="MinDeposit" Visibility="Hidden"   />
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 工作记录}" VerticalAlignment="Center" Grid.Column="2" Visibility="Visible"  />
+        <Button pu:ButtonHelper.CornerRadius="4" Content="{ll:Str 打开记录}" Background="{DynamicResource SecondaryLight}"
+BorderBrush="{DynamicResource SecondaryDark}" BorderThickness="2" Click="Open_Saves" Grid.Column="3" Visibility="Visible" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
     </Grid>
 </Window>

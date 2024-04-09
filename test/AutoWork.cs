@@ -1,4 +1,5 @@
 ﻿using LinePutScript;
+using LinePutScript.Converter;
 using LinePutScript.Localization.WPF;
 using Panuon.WPF.UI;
 using System.Windows;
@@ -37,10 +38,12 @@ namespace VPET.Evian.AutoWork
             Set = new Setting(MW.Set["AutoWork"]);
             Set.Enable = false;
             Set.WorkSet = MW.Set["AutoWork"].GetDouble("WorkSet");
-            Set.Work = false;
+            Set.Work = MW.Set["AutoWork"].GetBool("Work");
             Set.StudySet = MW.Set["AutoWork"].GetDouble("StudySet");
-            Set.Study = false;
+            Set.Study = MW.Set["AutoWork"].GetBool("Study");
             Set.MoneyMin = MW.Set["AutoWork"].GetDouble("MoneyMin");
+            Set.MoneyMin = MW.Set["AutoWork"].GetDouble("MoneyMin");
+            Set.SaveNum = MW.Set["AutoWork"].GetInt("SaveNum");
             ///Set.MinDeposit = MW.Set["AutoWork"].GetDouble("MinDeposit");
             ///添加列表项
             MenuItem modset = MW.Main.ToolBar.MenuMODConfig;
@@ -52,8 +55,9 @@ namespace VPET.Evian.AutoWork
             };
             menuItem.Click += (s, e) => { Setting(); };
             modset.Items.Add(menuItem);
-            ///将自动购买功能挂在FinishWorkHandle上
-            MW.Main.WorkTimer.E_FinishWork += autowork;
+            ///添加存储区
+            if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
+                Directory.CreateDirectory(GraphCore.CachePath + @"\Saves");
             ///获取工作
             MW.Main.WorkList(out ws, out ss, out ps);
             ///确定是否存在工作
@@ -79,6 +83,11 @@ namespace VPET.Evian.AutoWork
                 !x.IsOverLoad()); //不超模
                 num = work.Count;
             }
+            if (value == 1) 
+            {
+                MessageBoxX.Show("无可选择的工作".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                return;
+            }
             Set.WorkMax = value;
             ///确定学习收支比上限
             value = 1.25;
@@ -91,12 +100,18 @@ namespace VPET.Evian.AutoWork
                 !x.IsOverLoad()); //不超模
                 num = study.Count;
             }
+            if (value == 1)  
+            {
+                MessageBoxX.Show("无可选择的学习".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                return;
+            }
             Set.StudyMax = value;
-            ///添加存储区
-            if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
-                Directory.CreateDirectory(GraphCore.CachePath + @"\Saves");
+            ///将自动购买功能挂在FinishWorkHandle上
+            MW.Main.WorkTimer.E_FinishWork += autowork;
+            ///保存设置
+            MW.Set["AutoWork"] = LPSConvert.SerializeObject(Set, "AutoWork");
         }
-            ///添加自定
+        ///添加自定
         public override void LoadDIY()
         {
             MW.Main.ToolBar.AddMenuButton(VPet_Simulator.Core.ToolBar.MenuType.DIY, "AutoWork", SWITCH);
@@ -199,14 +214,14 @@ namespace VPET.Evian.AutoWork
                     if (!File.Exists(path))
                     {
                         StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                        sw.WriteLine(item.Name.Translate().ToString()+" "+ "倍率".Translate().ToString()+": " + Convert.ToInt32(Double).ToString());
+                        sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
                         sw.Close();
                         sw = null;
                     }
                     else
                     {
                         StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                        sw.WriteLine(item.Name.Translate().ToString()+" "+ "倍率".Translate().ToString()+": " + Convert.ToInt32(Double).ToString());
+                        sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
                         sw.Close();
                         sw = null;
                     }
@@ -224,14 +239,14 @@ namespace VPET.Evian.AutoWork
                     if (!File.Exists(path))
                     {
                         StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                        sw.WriteLine(item.Name.Translate().ToString()+" "+ "倍率".Translate().ToString()+": " + Convert.ToInt32(Double).ToString());
+                        sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
                         sw.Close();
                         sw = null;
                     }
                     else
                     {
                         StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                        sw.WriteLine(item.Name.Translate().ToString()+" "+ "倍率".Translate().ToString()+": " + Convert.ToInt32(Double).ToString());
+                        sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
                         sw.Close();
                         sw = null;
                     }
@@ -266,14 +281,14 @@ namespace VPET.Evian.AutoWork
                 if (!File.Exists(path))
                 {
                     StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                    sw.WriteLine(item.Name.Translate().ToString()+" "+ "倍率".Translate().ToString()+": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
                     sw.Close();
                     sw = null;
                 }
                 else
                 {
                     StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                    sw.WriteLine(item.Name.Translate().ToString()+" "+ "倍率".Translate().ToString()+": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
                     sw.Close();
                     sw = null;
                 }
@@ -291,20 +306,55 @@ namespace VPET.Evian.AutoWork
                 if (!File.Exists(path))
                 {
                     StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                    sw.WriteLine(item.Name.Translate().ToString()+" "+ "倍率".Translate().ToString()+": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
                     sw.Close();
                     sw = null;
                 }
                 else
                 {
                     StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                    sw.WriteLine(item.Name.Translate().ToString()+" "+ "倍率".Translate().ToString()+": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
                     sw.Close();
                     sw = null; 
                 }
                 MW.Main.StartWork(item);
             }
             else return;
+        }
+        public override void EndGame()
+        {
+            var path = GraphCore.CachePath + @"\Saves";
+            if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
+            {
+                base.EndGame();
+                return;
+            }
+            if (!File.Exists(path + $"\\Save.txt"))
+            {
+                base.EndGame();
+                return;
+            }
+            if (Set.SaveNum >= 20) 
+            {
+                File.Delete(path + $"\\Save" + Convert.ToString(Set.SaveNum - 20) + $".txt");
+            }
+            else if(Set.SaveNum >= 60000)
+            {
+                Set.SaveNum = 0;
+            }
+            else
+            {
+                Set.SaveNum++;
+            }
+            MW.Set["AutoWork"] = LPSConvert.SerializeObject(Set, "AutoWork");
+            if(File.Exists(path + $"\\Save" + Set.SaveNum.ToString() + $".txt"))
+            {
+                File.Delete(path + $"\\Save" + Set.SaveNum.ToString() + $".txt");
+            }
+            File.Copy(path + $"\\Save.txt",path+$"\\Save"+Set.SaveNum.ToString()+$".txt");
+            File.Delete(path + $"\\Save.txt");
+            base.Save();
+            base.EndGame();
         }
     }
 }

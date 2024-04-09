@@ -121,5 +121,17 @@ namespace VPET.Evian.AutoWork
             Close();
         }
 
+        private void Open_Saves(object sender, RoutedEventArgs e)
+        { 
+            if (Directory.Exists(GraphCore.CachePath + @"\Saves"))
+            {
+                var path = GraphCore.CachePath + $"\\Saves";
+                Process.Start("explorer.exe",path);
+            }
+            else
+            {
+                MessageBoxX.Show("存储文件夹不存在，请重启桌宠以创建存储文件夹".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+            }
+        }
     }
 }
