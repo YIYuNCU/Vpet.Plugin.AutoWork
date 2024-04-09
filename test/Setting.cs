@@ -94,6 +94,20 @@ namespace VPET.Evian.AutoWork
         private double mindeposit = 100;
         public string MinDepositStr { get; private set; } = "100";
         /// <summary>
+        /// 存档数
+        /// </summary>
+        [Line]
+        public int SaveNum
+        {
+            get => savenum; set
+            {
+                savenum = value;
+                SaveNumStr = $"{value}";
+            }
+        }
+        private int savenum = 0;
+        public string SaveNumStr { get; private set; } = "0";
+        /// <summary>
         /// 启用AutoWork
         /// </summary>
         [Line]
