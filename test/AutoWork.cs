@@ -178,9 +178,64 @@ namespace VPET.Evian.AutoWork
                 winSetting.Topmost = true;
             }
         }
-        private async void autowork(WorkTimer.FinishWorkInfo obj)
+        private Work FIXOverLoad(Work item)
+        {
+            if(!item.IsOverLoad()) 
+            {
+                return item;
+            }
+            var levellimit = 1.1 * item.LevelLimit + 10;
+            if (item.Type == Work.WorkType.Work)
+            {
+                if (item.MoneyBase > levellimit)
+                {
+                    item.MoneyBase = levellimit;
+                }
+            }
+            if (item.Type != Work.WorkType.Work)
+            {
+                if (item.MoneyBase > levellimit * 10) 
+                {
+                    item.MoneyBase = levellimit * 10;
+                }
+            }
+            while (item.IsOverLoad())
+            {
+                item.StrengthDrink += 0.1 * item.StrengthDrink;
+                item.StrengthFood += 0.1 * item.StrengthFood;
+                item.Feeling += 0.1 * item.Feeling;
+            }
+            while (!item.IsOverLoad())
+            {
+                item.StrengthFood -= 1;
+                item.StrengthDrink -= 1;
+                item.Feeling -= 1;
+            }
+            item.StrengthFood += 1;
+            item.StrengthDrink += 1;
+            item.Feeling += 1;
+            return item;
+        }
+        private void storage(Work item,int Double)
         {
             var path = GraphCore.CachePath + $"\\Saves\\Save.txt";
+            if (!File.Exists(path))
+            {
+                StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
+                sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " "+ DateTime.Now.ToString());
+                sw.Close();
+                sw = null;
+            }
+            else
+            {
+                StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
+                sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
+                sw.Close();
+                sw = null;
+            } 
+        }
+        private async void autowork(WorkTimer.FinishWorkInfo obj)
+        {
              if (Set.Enable) 
             {
                 if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
@@ -208,23 +263,11 @@ namespace VPET.Evian.AutoWork
                     !x.IsOverLoad()); //不超模
                     work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.WorkSet);
                     var item = work[Function.Rnd.Next(work.Count)];
-                    var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10); 
-                    item.Double(Convert.ToInt32(Double));
+                    var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10);
+                    item = item.Double(Convert.ToInt32(Double));
+                    item = FIXOverLoad(item);
                     MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
-                    if (!File.Exists(path))
-                    {
-                        StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                        sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
-                        sw.Close();
-                        sw = null;
-                    }
-                    else
-                    {
-                        StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                        sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
-                        sw.Close();
-                        sw = null;
-                    }
+                    storage(item, Double);
                     MW.Main.StartWork(item);
                 }
                 else if (Set.Study == true) 
@@ -234,22 +277,10 @@ namespace VPET.Evian.AutoWork
                     study = study.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
                     var item = study[Function.Rnd.Next(study.Count)];
                     var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10);
-                    item.Double(Convert.ToInt32(Double));
+                    item = item.Double(Convert.ToInt32(Double));
+                    item = FIXOverLoad(item);
                     MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
-                    if (!File.Exists(path))
-                    {
-                        StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                        sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
-                        sw.Close();
-                        sw = null;
-                    }
-                    else
-                    {
-                        StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                        sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
-                        sw.Close();
-                        sw = null;
-                    }
+                    storage(item, Double);
                     MW.Main.StartWork(item);
                 }
                 else return; 
@@ -276,22 +307,10 @@ namespace VPET.Evian.AutoWork
                 work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.WorkSet);
                 var item = work[Function.Rnd.Next(work.Count)];
                 var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10);
-                item.Double(Convert.ToInt32(Double));
+                item = item.Double(Convert.ToInt32(Double));
                 MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
-                if (!File.Exists(path))
-                {
-                    StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                    sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
-                    sw.Close();
-                    sw = null;
-                }
-                else
-                {
-                    StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                    sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
-                    sw.Close();
-                    sw = null;
-                }
+                item = FIXOverLoad(item);
+                storage(item, Double);
                 MW.Main.StartWork(item);
             }
             else if (Set.Study == true)
@@ -301,22 +320,10 @@ namespace VPET.Evian.AutoWork
                 study = study.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
                 var item = study[Function.Rnd.Next(study.Count)];
                 var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10);
-                item.Double(Convert.ToInt32(Double));
+                item = item.Double(Convert.ToInt32(Double));
                 MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
-                if (!File.Exists(path))
-                {
-                    StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                    sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
-                    sw.Close();
-                    sw = null;
-                }
-                else
-                {
-                    StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                    sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
-                    sw.Close();
-                    sw = null; 
-                }
+                item = FIXOverLoad(item);
+                storage(item, Double);
                 MW.Main.StartWork(item);
             }
             else return;
