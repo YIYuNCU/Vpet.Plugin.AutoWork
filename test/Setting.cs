@@ -1,5 +1,6 @@
 ﻿using LinePutScript;
 using LinePutScript.Converter;
+using System;
 
 namespace VPET.Evian.AutoWork
 {
@@ -37,6 +38,45 @@ namespace VPET.Evian.AutoWork
         }
         private double studymax = 1.0;
         public string StudyMaxStr { get; private set; } = "1.0";
+        /// <summary>
+        /// 收益
+        /// </summary>
+        public double Income
+        {
+            get => income; set
+            {
+                income = value;
+                IncomeStr = $"{value:f2}";
+            }
+        }
+        private double income = 1.0;
+        public string IncomeStr { get; private set; } = "1.0";
+        /// <summary>
+        /// 经验
+        /// </summary>
+        public double Experience
+        {
+            get => experience; set
+            {
+                experience = value;
+                ExperienceStr = $"{value:f2}";
+            }
+        }
+        private double experience = 1.0;
+        public string ExperienceStr { get; private set; } = "1.0";
+        /// <summary>
+        /// 倍率
+        /// </summary>
+        public int DOUBLE
+        {
+            get => doublee; set
+            {
+                doublee = value;
+                DOUBLEStr = $"{value:f2}";
+            }
+        }
+        private int doublee = 1;
+        public string DOUBLEStr { get; private set; } = "1.0";
         /// <summary>
         /// 最小收支比-工作
         /// </summary>

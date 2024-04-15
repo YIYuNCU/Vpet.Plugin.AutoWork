@@ -22,7 +22,6 @@ namespace VPET.Evian.AutoWork
         public Setting Set;
 
         GameSave_v2 GameSave;
-
         public override string PluginName => "AutoWork";
 #pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
         public AutoWork(IMainWindow mainwin) : base(mainwin)
@@ -32,6 +31,7 @@ namespace VPET.Evian.AutoWork
         List<Work> ws= new List<Work>();
         List<Work> ss= new List<Work>();
         List<Work> ps;
+        Work nowwork = new Work();
         public override void LoadPlugin()
         {
             ///从Setting.lps中读取存储的设置
@@ -44,6 +44,8 @@ namespace VPET.Evian.AutoWork
             Set.MoneyMin = MW.Set["AutoWork"].GetDouble("MoneyMin");
             Set.MoneyMin = MW.Set["AutoWork"].GetDouble("MoneyMin");
             Set.SaveNum = MW.Set["AutoWork"].GetInt("SaveNum");
+            Set.Income = MW.GameSavesData.GameSave.Money;
+            Set.Experience = MW.GameSavesData.GameSave.Exp;
             ///Set.MinDeposit = MW.Set["AutoWork"].GetDouble("MinDeposit");
             ///添加列表项
             MenuItem modset = MW.Main.ToolBar.MenuMODConfig;
@@ -124,6 +126,7 @@ namespace VPET.Evian.AutoWork
             if (Set.Enable == true) 
             {
                 Set.Enable = false;
+                storage(nowwork, Set.DOUBLE);
                 MW.Main.WorkTimer.Stop();
             }
             else
@@ -219,31 +222,74 @@ namespace VPET.Evian.AutoWork
         private void storage(Work item,int Double)
         {
             var path = GraphCore.CachePath + $"\\Saves\\Save.txt";
+            var gains = 0.00;
+            string WorkType = "";
+            if (item.Type == Work.WorkType.Work)
+            {
+                gains = Set.Income - MW.GameSavesData.GameSave.Money;
+                gains = 0 - gains;
+                WorkType = "工作";
+            }
+            else if (item.Type == Work.WorkType.Study)
+            {
+                gains = Set.Experience - MW.GameSavesData.GameSave.Exp;
+                gains = 0 - gains;
+                WorkType = "学习";
+            }
             if (!File.Exists(path))
             {
                 StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " "+ DateTime.Now.ToString());
+                sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString() + "\t" + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + "\t"
+                    + "收益".Translate().ToString() + ": " + Convert.ToInt32(gains).ToString() + "\t" + DateTime.Now.ToString());
                 sw.Close();
                 sw = null;
             }
             else
             {
                 StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                sw.WriteLine(item.Name.Translate().ToString() + " " + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + " " + DateTime.Now.ToString());
+                sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString() + "\t" + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + "\t"
+                    + "收益".Translate().ToString() + ": " + Convert.ToInt32(gains).ToString() + "\t" + DateTime.Now.ToString());
                 sw.Close();
                 sw = null;
             } 
         }
+        private void get_work(bool type)///type==0找学习，type==1找工作
+        {
+            Set.Income = MW.GameSavesData.GameSave.Money;
+            Set.Experience = MW.GameSavesData.GameSave.Exp;
+            List<Work> work;
+            if (type)
+            {
+                work = ws.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
+                    !x.IsOverLoad()); //不超模
+                work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.WorkSet);
+            }
+            else
+            {
+                work = ss.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
+                    !x.IsOverLoad()); //不超模
+                work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
+            }
+            var item = work[Function.Rnd.Next(work.Count)];
+            var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10);
+            item = item.Double(Convert.ToInt32(Double));
+            Set.DOUBLE=Double;
+            item = FIXOverLoad(item);
+            nowwork = item;
+            ///MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
+            MW.Main.StartWork(item);
+        }
         private async void autowork(WorkTimer.FinishWorkInfo obj)
         {
-             if (Set.Enable) 
+            await Task.Delay(5000);
+            if (Set.Enable) 
             {
                 if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
                 {
                 MessageBoxX.Show("存储文件夹不存在，请重启桌宠以创建存储文件夹".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 return;
                 }
-
+                storage(obj.work,Set.DOUBLE);
                 if (MW.GameSavesData.GameSave.Mode == IGameSave.ModeType.PoorCondition)
                 {
                     MessageBoxX.Show("健康值过低，请补充健康值后再开启".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
@@ -256,32 +302,13 @@ namespace VPET.Evian.AutoWork
                     Set.Enable = false;
                     MessageBoxX.Show("金钱过少，请工作赚钱".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 }
-                await Task.Delay(5000);
                 if (Set.Work == true)
                 {
-                    List<Work> work = ws.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
-                    !x.IsOverLoad()); //不超模
-                    work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.WorkSet);
-                    var item = work[Function.Rnd.Next(work.Count)];
-                    var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10);
-                    item = item.Double(Convert.ToInt32(Double));
-                    item = FIXOverLoad(item);
-                    MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
-                    storage(item, Double);
-                    MW.Main.StartWork(item);
+                    get_work(true);
                 }
                 else if (Set.Study == true) 
                 {
-                    List<Work> study = ss.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
-                    !x.IsOverLoad()); //不超模
-                    study = study.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
-                    var item = study[Function.Rnd.Next(study.Count)];
-                    var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10);
-                    item = item.Double(Convert.ToInt32(Double));
-                    item = FIXOverLoad(item);
-                    MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
-                    storage(item, Double);
-                    MW.Main.StartWork(item);
+                    get_work(false);
                 }
                 else return; 
             }
@@ -302,29 +329,11 @@ namespace VPET.Evian.AutoWork
             }
             if (Set.Work == true)
             {
-                List<Work> work = ws.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
-                !x.IsOverLoad()); //不超模
-                work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.WorkSet);
-                var item = work[Function.Rnd.Next(work.Count)];
-                var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10);
-                item = item.Double(Convert.ToInt32(Double));
-                MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
-                item = FIXOverLoad(item);
-                storage(item, Double);
-                MW.Main.StartWork(item);
+                get_work(true);
             }
             else if (Set.Study == true)
             {
-                List<Work> study = ss.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
-                !x.IsOverLoad()); //不超模
-                study = study.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
-                var item = study[Function.Rnd.Next(study.Count)];
-                var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10);
-                item = item.Double(Convert.ToInt32(Double));
-                MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
-                item = FIXOverLoad(item);
-                storage(item, Double);
-                MW.Main.StartWork(item);
+                get_work(false);
             }
             else return;
         }
