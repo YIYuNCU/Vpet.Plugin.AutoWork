@@ -127,7 +127,8 @@ namespace VPET.Evian.AutoWork
             {
                 Set.Enable = false;
                 storage(nowwork, Set.DOUBLE);
-                MW.Main.WorkTimer.Stop();
+                if (MW.Main.State == Main.WorkingState.Work)
+                    MW.Main.WorkTimer.Stop();
             }
             else
             {
@@ -313,9 +314,17 @@ namespace VPET.Evian.AutoWork
                 else return; 
             }
         }
-        public void autowork_origin()
+        public async void autowork_origin()
         {
-            var path = GraphCore.CachePath + $"\\Saves\\Save.txt";
+            if (MW.Main.State == Main.WorkingState.Work) 
+            {
+                if(Set.Enable == true)
+                    return;
+                storage(nowwork, Set.DOUBLE);
+                if (MW.Main.State == Main.WorkingState.Work)
+                    MW.Main.WorkTimer.Stop();
+                await Task.Delay(5000);
+            }
             if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
             {
                 MessageBoxX.Show("存储文件夹不存在，请重启桌宠以创建存储文件夹".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
