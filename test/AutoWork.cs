@@ -20,7 +20,8 @@ namespace VPET.Evian.AutoWork
     public class AutoWork : MainPlugin
     {
         public Setting Set;
-
+        private int Level = new int();
+        private double Experience = new double();
         GameSave_v2 GameSave;
         public override string PluginName => "AutoWork";
 #pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
@@ -45,7 +46,8 @@ namespace VPET.Evian.AutoWork
             Set.MoneyMin = MW.Set["AutoWork"].GetDouble("MoneyMin");
             Set.SaveNum = MW.Set["AutoWork"].GetInt("SaveNum");
             Set.Income = MW.GameSavesData.GameSave.Money;
-            Set.Experience = MW.GameSavesData.GameSave.Exp;
+            Level=MW.GameSavesData.GameSave.Level;
+            Experience = MW.GameSavesData.GameSave.Exp;
             ///Set.MinDeposit = MW.Set["AutoWork"].GetDouble("MinDeposit");
             ///添加列表项
             MenuItem modset = MW.Main.ToolBar.MenuMODConfig;
@@ -224,7 +226,9 @@ namespace VPET.Evian.AutoWork
         {
             var path = GraphCore.CachePath + $"\\Saves\\Save.txt";
             var gains = 0.00;
+            var gainlevel = Level - MW.GameSavesData.GameSave.Level;
             string WorkType = "";
+            var pay = 0.0;
             if (item.Type == Work.WorkType.Work)
             {
                 gains = Set.Income - MW.GameSavesData.GameSave.Money;
@@ -233,23 +237,60 @@ namespace VPET.Evian.AutoWork
             }
             else if (item.Type == Work.WorkType.Study)
             {
-                gains = Set.Experience - MW.GameSavesData.GameSave.Exp;
-                gains = 0 - gains;
+                if(gainlevel == 0)
+                {
+                    gains = MW.GameSavesData.GameSave.Exp - Experience;
+                }
+                else
+                {
+                    gains = MW.GameSavesData.GameSave.Exp;
+                }
+                pay = Set.Income - MW.GameSavesData.GameSave.Money;
                 WorkType = "学习";
             }
             if (!File.Exists(path))
             {
                 StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString() + "\t" + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + "\t"
-                    + "收益".Translate().ToString() + ": " + Convert.ToInt32(gains).ToString() + "\t" + DateTime.Now.ToString());
+                if(item.Type == Work.WorkType.Study)
+                {
+                    sw.WriteLine("");
+                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt32(gainlevel).ToString() + "Lv" + Convert.ToInt32(gains).ToString() + "Exp");
+                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToInt32(pay).ToString());
+                    sw.WriteLine("时间".Translate().ToString()+": "+DateTime.Now.ToString());
+                }
+                else
+                {
+                    sw.WriteLine("");
+                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt32(gains).ToString());
+                    sw.WriteLine("时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                }
                 sw.Close();
                 sw = null;
             }
             else
             {
                 StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString() + "\t" + "倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString() + "\t"
-                    + "收益".Translate().ToString() + ": " + Convert.ToInt32(gains).ToString() + "\t" + DateTime.Now.ToString());
+                if (item.Type == Work.WorkType.Study)
+                {
+                    sw.WriteLine("");
+                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt32(gainlevel).ToString() + "Lv" + Convert.ToInt32(gains).ToString() + "Exp");
+                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToInt32(pay).ToString());
+                    sw.WriteLine("时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                }
+                else
+                {
+                    sw.WriteLine("");
+                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt32(gains).ToString());
+                    sw.WriteLine("时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                }
                 sw.Close();
                 sw = null;
             } 
@@ -257,7 +298,8 @@ namespace VPET.Evian.AutoWork
         private void get_work(bool type)///type==0找学习，type==1找工作
         {
             Set.Income = MW.GameSavesData.GameSave.Money;
-            Set.Experience = MW.GameSavesData.GameSave.Exp;
+            Level = MW.GameSavesData.GameSave.Level;
+            Experience=MW.GameSavesData.GameSave.Exp;
             List<Work> work;
             if (type)
             {

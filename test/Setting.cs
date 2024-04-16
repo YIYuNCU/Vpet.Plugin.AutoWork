@@ -52,19 +52,6 @@ namespace VPET.Evian.AutoWork
         private double income = 1.0;
         public string IncomeStr { get; private set; } = "1.0";
         /// <summary>
-        /// 经验
-        /// </summary>
-        public double Experience
-        {
-            get => experience; set
-            {
-                experience = value;
-                ExperienceStr = $"{value:f2}";
-            }
-        }
-        private double experience = 1.0;
-        public string ExperienceStr { get; private set; } = "1.0";
-        /// <summary>
         /// 倍率
         /// </summary>
         public int DOUBLE
