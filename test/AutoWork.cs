@@ -20,9 +20,8 @@ namespace VPET.Evian.AutoWork
     public class AutoWork : MainPlugin
     {
         public Setting Set;
-        private int Level = new int();
-        private double Experience = new double();
-        GameSave_v2 GameSave;
+
+        DateTime StartTime;
         public override string PluginName => "AutoWork";
 #pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
         public AutoWork(IMainWindow mainwin) : base(mainwin)
@@ -46,8 +45,6 @@ namespace VPET.Evian.AutoWork
             Set.MoneyMin = MW.Set["AutoWork"].GetDouble("MoneyMin");
             Set.SaveNum = MW.Set["AutoWork"].GetInt("SaveNum");
             Set.Income = MW.GameSavesData.GameSave.Money;
-            Level=MW.GameSavesData.GameSave.Level;
-            Experience = MW.GameSavesData.GameSave.Exp;
             ///Set.MinDeposit = MW.Set["AutoWork"].GetDouble("MinDeposit");
             ///添加列表项
             MenuItem modset = MW.Main.ToolBar.MenuMODConfig;
@@ -123,14 +120,14 @@ namespace VPET.Evian.AutoWork
             ///base.LoadPlugin();
         
         public winSetting winSetting;
-        private void SWITCH()
+        private async void SWITCH()
         {
             if (Set.Enable == true) 
             {
-                Set.Enable = false;
-                storage(nowwork, Set.DOUBLE);
                 if (MW.Main.State == Main.WorkingState.Work)
                     MW.Main.WorkTimer.Stop();
+                await Task.Delay(1000);
+                Set.Enable = false;
             }
             else
             {
@@ -222,51 +219,45 @@ namespace VPET.Evian.AutoWork
             item.Feeling += 1;
             return item;
         }
-        private void storage(Work item,int Double)
+        private void storage(WorkTimer.FinishWorkInfo obj, int Double)
         {
             var path = GraphCore.CachePath + $"\\Saves\\Save.txt";
             var gains = 0.00;
-            var gainlevel = Level - MW.GameSavesData.GameSave.Level;
             string WorkType = "";
             var pay = 0.0;
-            if (item.Type == Work.WorkType.Work)
+            TimeSpan ts = DateTime.Now - StartTime;
+            if (obj.work.Type == Work.WorkType.Work)
             {
                 gains = Set.Income - MW.GameSavesData.GameSave.Money;
                 gains = 0 - gains;
                 WorkType = "工作";
             }
-            else if (item.Type == Work.WorkType.Study)
+            else if (obj.work.Type == Work.WorkType.Study)
             {
-                if(gainlevel == 0)
-                {
-                    gains = MW.GameSavesData.GameSave.Exp - Experience;
-                }
-                else
-                {
-                    gains = MW.GameSavesData.GameSave.Exp;
-                }
                 pay = Set.Income - MW.GameSavesData.GameSave.Money;
                 WorkType = "学习";
             }
             if (!File.Exists(path))
             {
                 StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                if(item.Type == Work.WorkType.Study)
+                if(obj.work.Type == Work.WorkType.Study)
                 {
                     sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt32(gainlevel).ToString() + "Lv" + Convert.ToInt32(gains).ToString() + "Exp");
-                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToInt32(pay).ToString());
-                    sw.WriteLine("时间".Translate().ToString()+": "+DateTime.Now.ToString());
+                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64  (obj.count).ToString() + "Exp");
+                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToUInt64(pay).ToString());
+                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
                 }
                 else
                 {
                     sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt32(gains).ToString());
-                    sw.WriteLine("时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64(gains).ToString());
+                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
                 }
                 sw.Close();
                 sw = null;
@@ -274,22 +265,24 @@ namespace VPET.Evian.AutoWork
             else
             {
                 StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                if (item.Type == Work.WorkType.Study)
+                if(obj.work.Type == Work.WorkType.Study)
                 {
                     sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt32(gainlevel).ToString() + "Lv" + Convert.ToInt32(gains).ToString() + "Exp");
-                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToInt32(pay).ToString());
-                    sw.WriteLine("时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64(obj.count).ToString() + "Exp");
+                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToUInt64(pay).ToString());
+                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
                 }
                 else
                 {
                     sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + item.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt32(gains).ToString());
-                    sw.WriteLine("时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64(gains).ToString());
+                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
                 }
                 sw.Close();
                 sw = null;
@@ -297,9 +290,8 @@ namespace VPET.Evian.AutoWork
         }
         private void get_work(bool type)///type==0找学习，type==1找工作
         {
+            StartTime = DateTime.Now;
             Set.Income = MW.GameSavesData.GameSave.Money;
-            Level = MW.GameSavesData.GameSave.Level;
-            Experience=MW.GameSavesData.GameSave.Exp;
             List<Work> work;
             if (type)
             {
@@ -324,15 +316,18 @@ namespace VPET.Evian.AutoWork
         }
         private async void autowork(WorkTimer.FinishWorkInfo obj)
         {
-            await Task.Delay(5000);
-            if (Set.Enable) 
+            if (Set.Enable)
             {
                 if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
                 {
-                MessageBoxX.Show("存储文件夹不存在，请重启桌宠以创建存储文件夹".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                return;
+                    MessageBoxX.Show("存储文件夹不存在，请重启桌宠以创建存储文件夹".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                    return;
                 }
-                storage(obj.work,Set.DOUBLE);
+                storage(obj, Set.DOUBLE);
+            }
+                await Task.Delay(5000);
+            if (Set.Enable) 
+            {
                 if (MW.GameSavesData.GameSave.Mode == IGameSave.ModeType.PoorCondition)
                 {
                     MessageBoxX.Show("健康值过低，请补充健康值后再开启".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
@@ -362,7 +357,6 @@ namespace VPET.Evian.AutoWork
             {
                 if(Set.Enable == true)
                     return;
-                storage(nowwork, Set.DOUBLE);
                 if (MW.Main.State == Main.WorkingState.Work)
                     MW.Main.WorkTimer.Stop();
                 await Task.Delay(5000);
