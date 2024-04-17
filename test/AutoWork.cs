@@ -14,6 +14,7 @@ using System.Text;
 using System.Windows.Shapes;
 using System;
 using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace VPET.Evian.AutoWork
 {
@@ -226,6 +227,10 @@ namespace VPET.Evian.AutoWork
             string WorkType = "";
             var pay = 0.0;
             TimeSpan ts = DateTime.Now - StartTime;
+            if (ts.TotalMinutes < 0.2) 
+            {
+                return;
+            }
             if (obj.work.Type == Work.WorkType.Work)
             {
                 gains = Set.Income - MW.GameSavesData.GameSave.Money;
@@ -261,6 +266,7 @@ namespace VPET.Evian.AutoWork
                 }
                 sw.Close();
                 sw = null;
+                return;
             }
             else
             {
@@ -286,6 +292,7 @@ namespace VPET.Evian.AutoWork
                 }
                 sw.Close();
                 sw = null;
+                return;
             } 
         }
         private void get_work(bool type)///type==0找学习，type==1找工作
@@ -417,6 +424,29 @@ namespace VPET.Evian.AutoWork
             base.Save();
             base.EndGame();
         }
+        //public string LoaddllPath(string dll)
+        //{
+        //    Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+        //    foreach (Assembly assembly in loadedAssemblies)
+        //    {
+        //        string assemblyName = assembly.GetName().Name;
+
+        //        if (assemblyName == dll)
+        //        {
+        //            string assemblyPath = assembly.Location;
+
+        //            string assemblyDirectory = System.IO.Path.GetDirectoryName(assemblyPath);
+
+        //            string parentDirectory = Directory.GetParent(assemblyDirectory).FullName;
+
+
+
+        //            return parentDirectory;
+        //        }
+        //    }
+        //    return "";
+        //}
     }
 }
 
