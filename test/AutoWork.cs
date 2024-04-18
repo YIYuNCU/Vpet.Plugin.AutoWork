@@ -85,7 +85,9 @@ namespace VPET.Evian.AutoWork
             {
                 value -= 0.01;
                 work = ws.FindAll(x => (x.Get() / x.Spend()) >= value && //正收益
-                !x.IsOverLoad()); //不超模
+                !x.IsOverLoad() &&//不超模
+                MW.GameSavesData.GameSave.Level>= x.LevelLimit
+                ); 
                 num = work.Count;
             }
             if (value == 1) 
@@ -106,7 +108,9 @@ namespace VPET.Evian.AutoWork
             {
                 value -= 0.01;
                 study = ss.FindAll(x => (x.Get() / x.Spend()) >= value && //正收益
-                !x.IsOverLoad()); //不超模
+                !x.IsOverLoad() &&//不超模
+                MW.GameSavesData.GameSave.Level >= x.LevelLimit
+                );
                 num = study.Count;
             }
             if (value == 1)  
@@ -246,11 +250,13 @@ namespace VPET.Evian.AutoWork
             {
                 gains = Set.Income - MW.GameSavesData.GameSave.Money;
                 gains = 0 - gains;
+                MW.GameSavesData.GameSave.Money -= 0.2 * gains;
                 WorkType = "工作";
             }
             else if (obj.work.Type == Work.WorkType.Study)
             {
                 pay = Set.Income - MW.GameSavesData.GameSave.Money;
+                MW.GameSavesData.GameSave.Money -= 0.2 * pay;
                 WorkType = "学习";
             }
             if (!File.Exists(path))
