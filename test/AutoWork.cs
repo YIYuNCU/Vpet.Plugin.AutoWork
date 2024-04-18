@@ -366,10 +366,10 @@ namespace VPET.Evian.AutoWork
             DateTime ld;
             DateTime ldnew;
             ld = Convert.ToDateTime(Set.LastDel);
-            ldnew = ld.AddDays(30);
+            ldnew = DateTime.Now.AddDays(7);
             if (ldnew <= DateTime.Now) 
             {
-                if (MW.GameSavesData.GameSave.Money < 1000)
+                if (MW.GameSavesData.GameSave.Money < (MW.GameSavesData.GameSave.Level-10)*10)
                 {
                     Set.Enable = false;
                     MessageBoxX.Show("剩余金钱不够购买本mod功能月卡".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
