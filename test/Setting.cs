@@ -149,5 +149,19 @@ namespace VPET.Evian.AutoWork
         /// </summary>
         [Line]
         public bool Study { get; set; } = true;
+        /// <summary>
+        /// 上次扣费时间
+        /// </summary>
+        [Line]
+        public string LastDel
+        {
+            get => LastDelStr; set
+            {
+                LastDelStr = $"{value}";
+            }
+        }
+        public string LastDelStr { get; private set; } = DateTime.Now.AddDays(-31).ToShortDateString();
+
+
     }
 }

@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using System.Net.Http.Headers;
 
 namespace VPET.Evian.AutoWork
 {
@@ -45,6 +46,8 @@ namespace VPET.Evian.AutoWork
             Set.MoneyMin = MW.Set["AutoWork"].GetDouble("MoneyMin");
             Set.MoneyMin = MW.Set["AutoWork"].GetDouble("MoneyMin");
             Set.SaveNum = MW.Set["AutoWork"].GetInt("SaveNum");
+            if(MW.Set["AutoWork"].GetString("LastDel")!=null)
+                Set.LastDel = MW.Set["AutoWork"].GetString("LastDel");
             Set.Income = MW.GameSavesData.GameSave.Money;
             ///Set.MinDeposit = MW.Set["AutoWork"].GetDouble("MinDeposit");
             ///添加列表项
@@ -321,44 +324,71 @@ namespace VPET.Evian.AutoWork
                 work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
             }
             var item = work[Function.Rnd.Next(work.Count)];
-            var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10);
-            if(Double < 1)
+            var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10)*1.00;
+            Double = Double * 0.8;
+            if (Double < 1)
             {
                 Double = 1;
             }
             item = item.Double(Convert.ToInt32(Double));
-            Set.DOUBLE=Double;
+            Set.DOUBLE = Convert.ToInt32(Double);
             item = FIXOverLoad(item);
             nowwork = item;
             ///MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
             MW.Main.StartWork(item);
         }
+        private bool open_condition()
+        {
+            if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
+            {
+                MessageBoxX.Show("存储文件夹不存在，请重启桌宠以创建存储文件夹".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                return false;
+            }
+            if (MW.GameSavesData.GameSave.Mode == IGameSave.ModeType.PoorCondition)
+            {
+                MessageBoxX.Show("健康值过低，请补充健康值后再开启".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                Set.Enable = false;
+                return false;
+            }
+            if (Set.Study == true && MW.GameSavesData.GameSave.Money <= Set.MoneyMin)
+            {
+                Set.Study = false;
+                Set.Enable = false;
+                MessageBoxX.Show("金钱过少，请工作赚钱".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                return false;
+            }
+            DateTime ld;
+            DateTime ldnew;
+            ld = Convert.ToDateTime(Set.LastDel);
+            ldnew = ld.AddDays(30);
+            if (ldnew <= DateTime.Now) 
+            {
+                if (MW.GameSavesData.GameSave.Money < 1000)
+                {
+                    Set.Enable = false;
+                    MessageBoxX.Show("剩余金钱不够购买本mod功能月卡".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                    return false;
+                }
+                else
+                {
+                    MW.GameSavesData.GameSave.Money -= 1000;
+                    Set.LastDel = DateTime.Now.ToShortDateString();
+                    MW.Set["AutoWork"] = LPSConvert.SerializeObject(Set, "AutoWork");
+                }
+            }
+            return true;
+        }
         private async void autowork(WorkTimer.FinishWorkInfo obj)
         {
+            if (!open_condition())
+                return;
             if (Set.Enable)
             {
-                if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
-                {
-                    MessageBoxX.Show("存储文件夹不存在，请重启桌宠以创建存储文件夹".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                    return;
-                }
                 storage(obj, Set.DOUBLE);
             }
                 await Task.Delay(5000);
             if (Set.Enable) 
             {
-                if (MW.GameSavesData.GameSave.Mode == IGameSave.ModeType.PoorCondition)
-                {
-                    MessageBoxX.Show("健康值过低，请补充健康值后再开启".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                    Set.Enable = false;
-                    return;
-                }
-                if (Set.Study == true && MW.GameSavesData.GameSave.Money <= Set.MoneyMin)
-                {
-                    Set.Study = false;
-                    Set.Enable = false;
-                    MessageBoxX.Show("金钱过少，请工作赚钱".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                }
                 if (Set.Work == true)
                 {
                     get_work(true);
@@ -380,17 +410,8 @@ namespace VPET.Evian.AutoWork
                     MW.Main.WorkTimer.Stop();
                 await Task.Delay(5000);
             }
-            if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
-            {
-                MessageBoxX.Show("存储文件夹不存在，请重启桌宠以创建存储文件夹".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+            if(!open_condition()) 
                 return;
-            }
-            if (MW.GameSavesData.GameSave.Mode == IGameSave.ModeType.PoorCondition)
-            {
-                MessageBoxX.Show("健康值过低，请补充健康值后再开启".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                Set.Enable = false;
-                return;
-            }
             if (Set.Work == true)
             {
                 get_work(true);
