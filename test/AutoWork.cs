@@ -91,6 +91,10 @@ namespace VPET.Evian.AutoWork
                 return;
             }
             Set.WorkMax = value;
+            if(Set.WorkSet == 0)
+            {
+                Set.WorkSet = Math.Round(Set.WorkMax,2);
+            }
             ///确定学习收支比上限
             value = 1.25;
             num = 0;
@@ -108,6 +112,10 @@ namespace VPET.Evian.AutoWork
                 return;
             }
             Set.StudyMax = value;
+            if(Set.StudySet == 0)
+            {
+                Set.StudySet = Math.Round(Set.StudyMax, 2);
+            }
             ///将自动购买功能挂在FinishWorkHandle上
             MW.Main.WorkTimer.E_FinishWork += autowork;
             ///保存设置
