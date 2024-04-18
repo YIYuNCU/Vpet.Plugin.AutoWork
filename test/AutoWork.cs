@@ -314,6 +314,10 @@ namespace VPET.Evian.AutoWork
             }
             var item = work[Function.Rnd.Next(work.Count)];
             var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10);
+            if(Double < 1)
+            {
+                Double = 1;
+            }
             item = item.Double(Convert.ToInt32(Double));
             Set.DOUBLE=Double;
             item = FIXOverLoad(item);
