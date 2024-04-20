@@ -160,7 +160,7 @@ namespace VPET.Evian.AutoWork
                 LastDelStr = $"{value}";
             }
         }
-        public string LastDelStr { get; private set; } = DateTime.Now.AddDays(-7).ToShortDateString();
+        public string LastDelStr { get; private set; } = DateTime.Now.ToShortDateString();
 
 
     }

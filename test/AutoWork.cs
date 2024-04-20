@@ -46,8 +46,11 @@ namespace VPET.Evian.AutoWork
             Set.MoneyMin = MW.Set["AutoWork"].GetDouble("MoneyMin");
             Set.MoneyMin = MW.Set["AutoWork"].GetDouble("MoneyMin");
             Set.SaveNum = MW.Set["AutoWork"].GetInt("SaveNum");
-            if(MW.Set["AutoWork"].GetString("LastDel")!=null)
-                Set.LastDel = MW.Set["AutoWork"].GetString("LastDel");
+            
+            if (MW.GameSavesData["AutoWork"].GetString("LastDel") != null)
+                Set.LastDel = MW.GameSavesData["AutoWork"].GetString("LastDel");
+            else
+                MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = Set.LastDel;
             Set.Income = MW.GameSavesData.GameSave.Money;
             ///Set.MinDeposit = MW.Set["AutoWork"].GetDouble("MinDeposit");
             ///添加列表项
@@ -363,33 +366,57 @@ namespace VPET.Evian.AutoWork
                 MessageBoxX.Show("金钱过少，请工作赚钱".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 return false;
             }
+            if (MW.GameSavesData.GameSave.Level < 10) 
+            {
+                MessageBoxX.Show("等级低于10级，不满足开启条件".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                return false;
+            }
             DateTime ld;
             DateTime ldnew;
-            ld = Convert.ToDateTime(Set.LastDel);
-            ldnew = DateTime.Now.AddDays(7);
-            if (ldnew <= DateTime.Now) 
+            ld = Convert.ToDateTime(Set.LastDel).AddDays(7);
+            ldnew = DateTime.Now;
+            if (ld >= ldnew.AddDays(14)) 
             {
-                if (MW.GameSavesData.GameSave.Money < (MW.GameSavesData.GameSave.Level-10)*10)
+                if (MW.GameSavesData.GameSave.Money < (MW.GameSavesData.GameSave.Level - 10) * 100)
                 {
                     Set.Enable = false;
-                    MessageBoxX.Show("剩余金钱不够购买本mod功能月卡".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                    MessageBoxX.Show("剩余金钱不够购买本mod功能月卡".Translate() + "\r\n"
+                        + "预计需要".Translate() + ((MW.GameSavesData.GameSave.Level - 10) * 100).ToString().Translate()
+                        , "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                     return false;
                 }
                 else
                 {
-                    MW.GameSavesData.GameSave.Money -= 1000;
+                    MW.GameSavesData.GameSave.Money -= (MW.GameSavesData.GameSave.Level - 10) * 100;
                     Set.LastDel = DateTime.Now.ToShortDateString();
-                    MW.Set["AutoWork"] = LPSConvert.SerializeObject(Set, "AutoWork");
+                    MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = Set.LastDel;
+                }
+            }
+            if (ldnew >= ld) 
+            {
+                if (MW.GameSavesData.GameSave.Money < (MW.GameSavesData.GameSave.Level - 10) * 100) 
+                {
+                    Set.Enable = false;
+                    MessageBoxX.Show("剩余金钱不够购买本mod功能月卡".Translate() + "\r\n"
+                        + "预计需要".Translate() + ((MW.GameSavesData.GameSave.Level - 10) * 100).ToString().Translate()
+                        , "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5) ;
+                    return false;
+                }
+                else
+                {
+                    MW.GameSavesData.GameSave.Money -= (MW.GameSavesData.GameSave.Level - 10) * 100;
+                    Set.LastDel = DateTime.Now.ToShortDateString();
+                    MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = Set.LastDel;
                 }
             }
             return true;
         }
         private async void autowork(WorkTimer.FinishWorkInfo obj)
         {
-            if (!open_condition())
-                return;
             if (Set.Enable)
             {
+                if (!open_condition())
+                    return;
                 storage(obj, Set.DOUBLE);
             }
                 await Task.Delay(5000);
