@@ -58,7 +58,16 @@ namespace VPET.Evian.AutoWork
             vts.Set.StudySet = Convert.ToDouble(StudySet.Text);
             vts.Set.MoneyMin = Convert.ToDouble(MoneySet.Text);
             vts.MW.Set["AutoWork"] = LPSConvert.SerializeObject(vts.Set, "AutoWork");
-
+            if(vts.Set.WorkSet == 0)
+            {
+                vts.Set.WorkSet = Math.Round(vts.Set.WorkMax, 2);
+                WorkSet.Text = vts.Set.WorkMax.ToString("0.00");
+            }
+            if (vts.Set.StudySet == 0)
+            {
+                vts.Set.StudySet = Math.Round(vts.Set.StudyMax, 2);
+                StudySet.Text = vts.Set.StudyMax.ToString("0.00");
+            }
             if (Study.IsChecked.Value && vts.MW.GameSavesData.GameSave.Money <= vts.Set.MoneyMin) 
             {
                 Study.IsChecked = false;

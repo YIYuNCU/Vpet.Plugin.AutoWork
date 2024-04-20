@@ -52,19 +52,6 @@ namespace VPET.Evian.AutoWork
         private double income = 1.0;
         public string IncomeStr { get; private set; } = "1.0";
         /// <summary>
-        /// 经验
-        /// </summary>
-        public double Experience
-        {
-            get => experience; set
-            {
-                experience = value;
-                ExperienceStr = $"{value:f2}";
-            }
-        }
-        private double experience = 1.0;
-        public string ExperienceStr { get; private set; } = "1.0";
-        /// <summary>
         /// 倍率
         /// </summary>
         public int DOUBLE
@@ -162,5 +149,19 @@ namespace VPET.Evian.AutoWork
         /// </summary>
         [Line]
         public bool Study { get; set; } = true;
+        /// <summary>
+        /// 上次扣费时间
+        /// </summary>
+        [Line]
+        public string LastDel
+        {
+            get => LastDelStr; set
+            {
+                LastDelStr = $"{value}";
+            }
+        }
+        public string LastDelStr { get; private set; } = DateTime.Now.ToShortDateString();
+
+
     }
 }
