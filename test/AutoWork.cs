@@ -472,7 +472,9 @@ namespace VPET.Evian.AutoWork
             }
             if (Set.SaveNum >= 20) 
             {
-                File.Delete(path + $"\\Save" + Convert.ToString(Set.SaveNum - 20) + $".txt");
+                if (File.Exists(path + $"\\Save" + Convert.ToString(Set.SaveNum - 20) + $".txt"))
+                    File.Delete(path + $"\\Save" + Convert.ToString(Set.SaveNum - 20) + $".txt");
+                Set.SaveNum++;
             }
             else if(Set.SaveNum >= 60000)
             {
@@ -492,29 +494,29 @@ namespace VPET.Evian.AutoWork
             base.Save();
             base.EndGame();
         }
-        //public string LoaddllPath(string dll)
-        //{
-        //    Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        ////public string LoaddllPath(string dll)
+        ////{
+        ////    Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-        //    foreach (Assembly assembly in loadedAssemblies)
-        //    {
-        //        string assemblyName = assembly.GetName().Name;
+        ////    foreach (Assembly assembly in loadedAssemblies)
+        ////    {
+        ////        string assemblyName = assembly.GetName().Name;
 
-        //        if (assemblyName == dll)
-        //        {
-        //            string assemblyPath = assembly.Location;
+        ////        if (assemblyName == dll)
+        ////        {
+        ////            string assemblyPath = assembly.Location;
 
-        //            string assemblyDirectory = System.IO.Path.GetDirectoryName(assemblyPath);
+        ////            string assemblyDirectory = System.IO.Path.GetDirectoryName(assemblyPath);
 
-        //            string parentDirectory = Directory.GetParent(assemblyDirectory).FullName;
+        ////            string parentDirectory = Directory.GetParent(assemblyDirectory).FullName;
 
 
 
-        //            return parentDirectory;
-        //        }
-        //    }
-        //    return "";
-        //}
+        ////            return parentDirectory;
+        ////        }
+        ////    }
+        ////    return "";
+        ////}
     }
 }
 
