@@ -241,6 +241,7 @@ namespace VPET.Evian.AutoWork
         private void storage(WorkTimer.FinishWorkInfo obj, int Double)
         {
             var path = GraphCore.CachePath + $"\\Saves\\Save.txt";
+
             var gains = 0.00;
             string WorkType = "";
             var pay = 0.0;
@@ -271,9 +272,9 @@ namespace VPET.Evian.AutoWork
                 {
                     sw.WriteLine("");
                     sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64  (obj.count).ToString() + "Exp");
-                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToUInt64(pay).ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64 (obj.count).ToString() + "Exp");
+                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToInt64(pay).ToString());
                     sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
                     sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
                 }
@@ -281,8 +282,8 @@ namespace VPET.Evian.AutoWork
                 {
                     sw.WriteLine("");
                     sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64(gains).ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64(gains).ToString());
                     sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
                     sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
                 }
@@ -297,9 +298,9 @@ namespace VPET.Evian.AutoWork
                 {
                     sw.WriteLine("");
                     sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64(obj.count).ToString() + "Exp");
-                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToUInt64(pay).ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64(obj.count).ToString() + "Exp");
+                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToInt64(pay).ToString());
                     sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
                     sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
                 }
@@ -307,8 +308,8 @@ namespace VPET.Evian.AutoWork
                 {
                     sw.WriteLine("");
                     sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64(gains).ToString());
+                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64(gains).ToString());
                     sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
                     sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
                 }
@@ -372,6 +373,34 @@ namespace VPET.Evian.AutoWork
             {
                 MessageBoxX.Show("等级低于10级，不满足开启条件".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 return false;
+            }
+            if (Set.Work == true)
+            {
+                List<Work> work = ws.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
+                !x.IsOverLoad()); //不超模
+                work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.WorkSet);
+                if (work.Count == 0)
+                {
+                    Set.Work = false;
+                    MessageBoxX.Show("无可选择的工作,请重新设置".Translate(), "错误".Translate(),
+                        MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                    return false;
+                }
+                Set.Enable = true;
+            }
+            else if (Set.Study == true)
+            {
+                List<Work> study = ss.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
+                !x.IsOverLoad()); //不超模
+                study = study.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
+                if (study.Count == 0)
+                {
+                    Set.Study = false;
+                    MessageBoxX.Show("无可选择的学习,请重新设置".Translate(), "错误".Translate(),
+                        MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                    return false;
+                }
+                Set.Enable = true;
             }
             DateTime ld;
             DateTime ldnew;
