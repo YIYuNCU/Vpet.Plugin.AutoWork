@@ -254,12 +254,14 @@ namespace VPET.Evian.AutoWork
                 gains = Set.Income - MW.GameSavesData.GameSave.Money;
                 gains = 0 - gains;
                 MW.GameSavesData.GameSave.Money -= 0.2 * gains;
+                gains -= 0.2 * gains;
                 WorkType = "工作";
             }
             else if (obj.work.Type == Work.WorkType.Study)
             {
                 pay = Set.Income - MW.GameSavesData.GameSave.Money;
                 MW.GameSavesData.GameSave.Money -= 0.2 * pay;
+                pay += 0.2 * pay;
                 WorkType = "学习";
             }
             if (!File.Exists(path))
