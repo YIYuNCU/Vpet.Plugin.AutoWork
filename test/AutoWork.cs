@@ -420,7 +420,9 @@ namespace VPET.Evian.AutoWork
             }
             if (Set.SaveNum >= 20) 
             {
-                File.Delete(path + $"\\Save" + Convert.ToString(Set.SaveNum - 20) + $".txt");
+                if (File.Exists(path + $"\\Save" + Convert.ToString(Set.SaveNum - 20) + $".txt"))
+                    File.Delete(path + $"\\Save" + Convert.ToString(Set.SaveNum - 20) + $".txt");
+                Set.SaveNum++;
             }
             else if(Set.SaveNum >= 60000)
             {
