@@ -81,7 +81,7 @@ namespace VPET.Evian.AutoWork
                 return;
             }
             ///确定工作收支比上限
-            var value = 1.25;
+            var value = 1.4;
             var num = 0;
             List<Work> work;
             while (value > 1 && num == 0) ///收支比小于1的亏本，不考虑
@@ -104,7 +104,7 @@ namespace VPET.Evian.AutoWork
                 Set.WorkSet = Math.Round(Set.WorkMax,2);
             }
             ///确定学习收支比上限
-            value = 1.25;
+            value = 1.4;
             num = 0;
             List<Work> study;
             while (value > 1 && num == 0) ///收支比小于1的亏本，不考虑
@@ -265,58 +265,33 @@ namespace VPET.Evian.AutoWork
                 pay += 0.2 * pay;
                 WorkType = "学习";
             }
+            StreamWriter sw;
             if (!File.Exists(path))
+                sw = new StreamWriter(path, false, Encoding.Unicode);
+            else
+                sw = new StreamWriter(path, true, Encoding.Unicode);
+            if (obj.work.Type == Work.WorkType.Study)
             {
-                StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                if(obj.work.Type == Work.WorkType.Study)
-                {
-                    sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64 (obj.count).ToString() + "Exp");
-                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToInt64(pay).ToString());
-                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
-                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
-                }
-                else
-                {
-                    sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64(gains).ToString());
-                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
-                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
-                }
-                sw.Close();
-                sw = null;
-                return;
+                sw.WriteLine("");
+                sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
+                sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64(obj.count).ToString() + "Exp");
+                sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToInt64(pay).ToString());
+                sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
             }
             else
             {
-                StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                if(obj.work.Type == Work.WorkType.Study)
-                {
-                    sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64(obj.count).ToString() + "Exp");
-                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToInt64(pay).ToString());
-                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
-                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
-                }
-                else
-                {
-                    sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64(gains).ToString());
-                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
-                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
-                }
-                sw.Close();
-                sw = null;
-                return;
-            } 
+                sw.WriteLine("");
+                sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
+                sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64(gains).ToString());
+                sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
+            }
+            sw.Close();
+            sw = null;
+            return;
         }
         private void get_work(bool type)///type==0找学习，type==1找工作
         {
