@@ -81,7 +81,7 @@ namespace VPET.Evian.AutoWork
                 return;
             }
             ///确定工作收支比上限
-            var value = 1.25;
+            var value = 1.4;
             var num = 0;
             List<Work> work;
             while (value > 1 && num == 0) ///收支比小于1的亏本，不考虑
@@ -104,7 +104,7 @@ namespace VPET.Evian.AutoWork
                 Set.WorkSet = Math.Round(Set.WorkMax,2);
             }
             ///确定学习收支比上限
-            value = 1.25;
+            value = 1.4;
             num = 0;
             List<Work> study;
             while (value > 1 && num == 0) ///收支比小于1的亏本，不考虑
@@ -241,6 +241,7 @@ namespace VPET.Evian.AutoWork
         private void storage(WorkTimer.FinishWorkInfo obj, int Double)
         {
             var path = GraphCore.CachePath + $"\\Saves\\Save.txt";
+
             var gains = 0.00;
             string WorkType = "";
             var pay = 0.0;
@@ -254,66 +255,43 @@ namespace VPET.Evian.AutoWork
                 gains = Set.Income - MW.GameSavesData.GameSave.Money;
                 gains = 0 - gains;
                 MW.GameSavesData.GameSave.Money -= 0.2 * gains;
+                gains -= 0.2 * gains;
                 WorkType = "工作";
             }
             else if (obj.work.Type == Work.WorkType.Study)
             {
                 pay = Set.Income - MW.GameSavesData.GameSave.Money;
                 MW.GameSavesData.GameSave.Money -= 0.2 * pay;
+                pay += 0.2 * pay;
                 WorkType = "学习";
             }
+            StreamWriter sw;
             if (!File.Exists(path))
+                sw = new StreamWriter(path, false, Encoding.Unicode);
+            else
+                sw = new StreamWriter(path, true, Encoding.Unicode);
+            if (obj.work.Type == Work.WorkType.Study)
             {
-                StreamWriter sw = new StreamWriter(path, false, Encoding.Unicode);
-                if(obj.work.Type == Work.WorkType.Study)
-                {
-                    sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64  (obj.count).ToString() + "Exp");
-                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToUInt64(pay).ToString());
-                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
-                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
-                }
-                else
-                {
-                    sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64(gains).ToString());
-                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
-                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
-                }
-                sw.Close();
-                sw = null;
-                return;
+                sw.WriteLine("");
+                sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
+                sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64(obj.count).ToString() + "Exp");
+                sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToInt64(pay).ToString());
+                sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
             }
             else
             {
-                StreamWriter sw = new StreamWriter(path, true, Encoding.Unicode);
-                if(obj.work.Type == Work.WorkType.Study)
-                {
-                    sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64(obj.count).ToString() + "Exp");
-                    sw.WriteLine("花销".Translate().ToString() + ": " + Convert.ToUInt64(pay).ToString());
-                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
-                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
-                }
-                else
-                {
-                    sw.WriteLine("");
-                    sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
-                    sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToUInt64(Double).ToString());
-                    sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToUInt64(gains).ToString());
-                    sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
-                    sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
-                }
-                sw.Close();
-                sw = null;
-                return;
-            } 
+                sw.WriteLine("");
+                sw.WriteLine(WorkType.Translate().ToString() + ":" + "\t" + obj.work.Name.Translate().ToString());
+                sw.WriteLine("倍率".Translate().ToString() + ": " + Convert.ToInt32(Double).ToString());
+                sw.WriteLine("收益".Translate().ToString() + ": " + Convert.ToInt64(gains).ToString());
+                sw.WriteLine("完成时间".Translate().ToString() + ": " + DateTime.Now.ToString());
+                sw.WriteLine("时间花费".Translate().ToString() + ": " + ts.TotalMinutes.ToString("0.00") + "Min");
+            }
+            sw.Close();
+            sw = null;
+            return;
         }
         private void get_work(bool type)///type==0找学习，type==1找工作
         {
@@ -370,6 +348,34 @@ namespace VPET.Evian.AutoWork
             {
                 MessageBoxX.Show("等级低于10级，不满足开启条件".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 return false;
+            }
+            if (Set.Work == true)
+            {
+                List<Work> work = ws.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
+                !x.IsOverLoad()); //不超模
+                work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.WorkSet);
+                if (work.Count == 0)
+                {
+                    Set.Work = false;
+                    MessageBoxX.Show("无可选择的工作,请重新设置".Translate(), "错误".Translate(),
+                        MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                    return false;
+                }
+                Set.Enable = true;
+            }
+            else if (Set.Study == true)
+            {
+                List<Work> study = ss.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
+                !x.IsOverLoad()); //不超模
+                study = study.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
+                if (study.Count == 0)
+                {
+                    Set.Study = false;
+                    MessageBoxX.Show("无可选择的学习,请重新设置".Translate(), "错误".Translate(),
+                        MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                    return false;
+                }
+                Set.Enable = true;
             }
             DateTime ld;
             DateTime ldnew;
@@ -470,7 +476,9 @@ namespace VPET.Evian.AutoWork
             }
             if (Set.SaveNum >= 20) 
             {
-                File.Delete(path + $"\\Save" + Convert.ToString(Set.SaveNum - 20) + $".txt");
+                if (File.Exists(path + $"\\Save" + Convert.ToString(Set.SaveNum - 20) + $".txt"))
+                    File.Delete(path + $"\\Save" + Convert.ToString(Set.SaveNum - 20) + $".txt");
+                Set.SaveNum++;
             }
             else if(Set.SaveNum >= 60000)
             {
@@ -490,29 +498,29 @@ namespace VPET.Evian.AutoWork
             base.Save();
             base.EndGame();
         }
-        //public string LoaddllPath(string dll)
-        //{
-        //    Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        ////public string LoaddllPath(string dll)
+        ////{
+        ////    Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-        //    foreach (Assembly assembly in loadedAssemblies)
-        //    {
-        //        string assemblyName = assembly.GetName().Name;
+        ////    foreach (Assembly assembly in loadedAssemblies)
+        ////    {
+        ////        string assemblyName = assembly.GetName().Name;
 
-        //        if (assemblyName == dll)
-        //        {
-        //            string assemblyPath = assembly.Location;
+        ////        if (assemblyName == dll)
+        ////        {
+        ////            string assemblyPath = assembly.Location;
 
-        //            string assemblyDirectory = System.IO.Path.GetDirectoryName(assemblyPath);
+        ////            string assemblyDirectory = System.IO.Path.GetDirectoryName(assemblyPath);
 
-        //            string parentDirectory = Directory.GetParent(assemblyDirectory).FullName;
+        ////            string parentDirectory = Directory.GetParent(assemblyDirectory).FullName;
 
 
 
-        //            return parentDirectory;
-        //        }
-        //    }
-        //    return "";
-        //}
+        ////            return parentDirectory;
+        ////        }
+        ////    }
+        ////    return "";
+        ////}
     }
 }
 
