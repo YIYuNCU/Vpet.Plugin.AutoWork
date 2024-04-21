@@ -115,14 +115,18 @@ namespace VPET.Evian.AutoWork
             else if (vts.Set.WorkSet > vts.Set.WorkMax && vts.Set.Work)
             {
                 vts.Set.Enable = false;
-                vts.Set.WorkSet = 0;
+                SwitchOn.IsChecked = false;
+                vts.Set.WorkSet = Math.Round(vts.Set.WorkMax, 2);
+                WorkSet.Text=vts.Set.WorkSet.ToString("0.00");
                 MessageBoxX.Show("无可选择的工作,请重新设置".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 return;
             }
             else if (vts.Set.StudySet > vts.Set.StudyMax && vts.Set.Study)
             {
                 vts.Set.Enable = false;
-                vts.Set.StudySet = 0;
+                SwitchOn.IsChecked = false;
+                vts.Set.StudySet = Math.Round(vts.Set.StudyMax, 2);
+                StudySet.Text = vts.Set.StudySet.ToString("0.00");
                 MessageBoxX.Show("无可选择的学习,请重新设置".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 return;
             }
