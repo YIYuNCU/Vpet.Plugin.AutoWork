@@ -31,7 +31,7 @@ namespace VPET.Evian.AutoWork
             StudySet.Text = vts.Set.StudySet.ToString();
             Study.IsChecked = vts.Set.Study;
             MoneySet.Text=vts.Set.MoneyMin.ToString();
-
+            Violence.IsChecked = vts.Set.Violence;
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -54,19 +54,23 @@ namespace VPET.Evian.AutoWork
             {
                 vts.Set.Study = Study.IsChecked.Value;
             }
+            if (vts.Set.Violence != Violence.IsChecked.Value)
+            {
+                vts.Set.Violence = Violence.IsChecked.Value;
+            }
             vts.Set.WorkSet = Convert.ToDouble(WorkSet.Text);
             vts.Set.StudySet = Convert.ToDouble(StudySet.Text);
             vts.Set.MoneyMin = Convert.ToDouble(MoneySet.Text);
             vts.MW.Set["AutoWork"] = LPSConvert.SerializeObject(vts.Set, "AutoWork");
             if(vts.Set.WorkSet == 0)
             {
-                vts.Set.WorkSet = Math.Round(vts.Set.WorkMax, 2);
-                WorkSet.Text = vts.Set.WorkMax.ToString("0.00");
+                vts.Set.WorkSet = Math.Round(vts.Set.WorkMax - 0.01, 2);
+                WorkSet.Text = (vts.Set.WorkMax - 0.01).ToString("0.00");
             }
             if (vts.Set.StudySet == 0)
             {
-                vts.Set.StudySet = Math.Round(vts.Set.StudyMax, 2);
-                StudySet.Text = vts.Set.StudyMax.ToString("0.00");
+                vts.Set.StudySet = Math.Round(vts.Set.StudyMax-0.01, 2);
+                StudySet.Text = (vts.Set.StudyMax - 0.01).ToString("0.00");
             }
             if (Study.IsChecked.Value && vts.MW.GameSavesData.GameSave.Money <= vts.Set.MoneyMin) 
             {
@@ -100,11 +104,11 @@ namespace VPET.Evian.AutoWork
                     }  
                 }
             }
-            if (vts.Set.WorkSet <= vts.Set.WorkMax && vts.Set.Work && vts.Set.Enable == true) ///满足工作条件
+            if ((vts.Set.WorkSet <= vts.Set.WorkMax || vts.Set.Violence == true) && vts.Set.Work && vts.Set.Enable == true) ///满足工作条件
             {
                 vts.autowork_origin();
             }
-            else if(vts.Set.StudySet <= vts.Set.StudyMax && vts.Set.Study && vts.Set.Enable == true) ///满足学习条件
+            else if((vts.Set.StudySet <= vts.Set.StudyMax || vts.Set.Violence == true) && vts.Set.Study && vts.Set.Enable == true) ///满足学习条件
             {
                 vts.autowork_origin();
             }

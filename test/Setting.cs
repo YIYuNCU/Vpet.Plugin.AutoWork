@@ -150,6 +150,11 @@ namespace VPET.Evian.AutoWork
         [Line]
         public bool Study { get; set; } = true;
         /// <summary>
+        /// 模式-暴力
+        /// </summary>
+        [Line]
+        public bool Violence { get; set; } = true;
+        /// <summary>
         /// 上次扣费时间
         /// </summary>
         [Line]
@@ -161,6 +166,48 @@ namespace VPET.Evian.AutoWork
             }
         }
         public string LastDelStr { get; private set; } = DateTime.Now.ToShortDateString();
+        /// <summary>
+        /// 上周暴力模式收益
+        /// </summary>
+        [Line]
+        public double VioEarn
+        {
+            get => vioearn; set
+            {
+                vioearn = value;
+                VioEarnStr = $"{value:f2}";
+            }
+        }
+        private double vioearn = 0;
+        public string VioEarnStr { get; private set; } = "0";
+        /// <summary>
+        /// 上周收益_Money
+        /// </summary>
+        [Line]
+        public double EarnM
+        {
+            get => earnm; set
+            {
+                earnm = value;
+                EarnMStr = $"{value:f2}";
+            }
+        }
+        private double earnm = 0;
+        public string EarnMStr { get; private set; } = "0";
+        /// <summary>
+        /// 上周收益_Experience
+        /// </summary>
+        [Line]
+        public double EarnE
+        {
+            get => earne; set
+            {
+                earne = value;
+                EarnEStr = $"{value:f2}";
+            }
+        }
+        private double earne = 0;
+        public string EarnEStr { get; private set; } = "0";
 
 
     }

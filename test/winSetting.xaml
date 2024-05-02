@@ -5,24 +5,21 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:ll="clr-namespace:LinePutScript.Localization.WPF;assembly=LinePutScript.Localization.WPF"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:VPET.Evian.AutoWork"
-        mc:Ignorable="d" xmlns:pu="clr-namespace:Panuon.WPF.UI;assembly=Panuon.WPF.UI" Title="{ll:Str AutoWork 设置}" Width="375"
-        FontSize="16" Height="273" ResizeMode="NoResize" WindowState="Normal" SizeToContent="Height"
-        Background="{DynamicResource PrimaryLighter}" Closed="Window_Closed">
+        mc:Ignorable="d" xmlns:pu="clr-namespace:Panuon.WPF.UI;assembly=Panuon.WPF.UI" Title="{ll:Str AutoWork 设置}"
+        FontSize="16" ResizeMode="NoResize" WindowState="Normal" SizeToContent="Height"
+        Background="{DynamicResource PrimaryLighter}" Closed="Window_Closed" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Left="0" Top="0" MinWidth="360" MinHeight="272" Width="449" Height="307">
     <Window.Resources>
         <ResourceDictionary Source="/VPet-Simulator.Windows.Interface;component/ResourceStyle.xaml" />
     </Window.Resources>
 
-    <Grid Margin="8,8,8,8" Background="{DynamicResource PrimaryLighter}">
+    <Grid Background="{DynamicResource PrimaryLighter}" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="300" MinHeight="200">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
-            <RowDefinition Height="40" />
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
@@ -38,13 +35,11 @@
          CheckedToggleBrush="{DynamicResource DARKPrimaryText}" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
         <Button pu:ButtonHelper.CornerRadius="4" Content="{ll:Str 保存设置}" Background="{DynamicResource SecondaryLight}"
-        BorderBrush="{DynamicResource SecondaryDark}" BorderThickness="2" Grid.Row="4" Margin="9,5,1,5"
-        Grid.ColumnSpan="5" Click="Save_Click" />
+        BorderBrush="{DynamicResource SecondaryDark}" BorderThickness="2" Grid.Row="4" Click="Save_Click" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="3" Width="96" Margin="0,8,0,0" />
         <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 最小收支比}" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1" />
         <TextBox Grid.Column="3" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="70" x:Name="WorkSet" Grid.Row="1"   />
         <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 工作}" VerticalAlignment="Center" Grid.Row="1"  />
         <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 学习}" VerticalAlignment="Center" Grid.Row="2"  />
-        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="{ll:Str 请关闭启用开关后再结束工作以彻底关闭工作}" VerticalAlignment="Center" Grid.Row="5" Width="322" Grid.ColumnSpan="5" Margin="10,0,0,0"  />
         <pu:Switch x:Name="Work" BorderBrush="{DynamicResource DARKPrimaryDark}"
             CheckedBackground="{DynamicResource DARKPrimary}" CheckedBorderBrush="{DynamicResource DARKPrimary}"
             Background="Transparent" BoxWidth="35" BoxHeight="18" ToggleSize="14" ToggleShadowColor="{x:Null}"
@@ -64,5 +59,12 @@
         <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 工作记录}" VerticalAlignment="Center" Grid.Column="2" Visibility="Visible"  />
         <Button pu:ButtonHelper.CornerRadius="4" Content="{ll:Str 打开记录}" Background="{DynamicResource SecondaryLight}"
 BorderBrush="{DynamicResource SecondaryDark}" BorderThickness="2" Click="Open_Saves" Grid.Column="3" Visibility="Visible" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 保存设置}" VerticalAlignment="Top" Grid.Column="2" Grid.Row="4" Margin="0,10,0,0"  />
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ll:Str 暴力模式}" VerticalAlignment="Top" Grid.Row="4" Margin="0,10,0,0"  />
+        <pu:Switch x:Name="Violence" BorderBrush="{DynamicResource DARKPrimaryDark}"
+            CheckedBackground="{DynamicResource DARKPrimary}" CheckedBorderBrush="{DynamicResource DARKPrimary}"
+            Background="Transparent" BoxWidth="35" BoxHeight="18" ToggleSize="14" ToggleShadowColor="{x:Null}"
+            ToggleBrush="{DynamicResource DARKPrimaryDark}" 
+            CheckedToggleBrush="{DynamicResource DARKPrimaryText}" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0" />
     </Grid>
 </Window>
