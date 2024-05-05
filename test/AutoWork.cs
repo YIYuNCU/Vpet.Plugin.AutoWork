@@ -598,11 +598,19 @@ namespace VPET.Evian.AutoWork
             {
                 Set.SaveNum++;
             }
-            MW.Set["AutoWork"] = LPSConvert.SerializeObject(Set, "AutoWork");
-            if(File.Exists(path + $"\\Save" + Set.SaveNum.ToString() + $".txt"))
+            if (File.Exists(path + $"\\Save" + Set.SaveNum.ToString() + $".txt"))
             {
                 File.Delete(path + $"\\Save" + Set.SaveNum.ToString() + $".txt");
             }
+            StreamWriter sw = new StreamWriter(path + $"\\Save.txt", true, Encoding.Unicode);
+            sw.WriteLine("");
+            sw.WriteLine("总经验收益".Translate().ToString() + " " + Set.EarnE.ToString("0.00").Translate().ToString());
+            Set.EarnE = 0;
+            sw.WriteLine("总金钱收益".Translate().ToString() + " " + Set.EarnM.ToString("0.00").Translate().ToString());
+            Set.EarnM = 0;
+            sw.Close();
+            sw = null;
+            MW.Set["AutoWork"] = LPSConvert.SerializeObject(Set, "AutoWork");
             File.Copy(path + $"\\Save.txt",path+$"\\Save"+Set.SaveNum.ToString()+$".txt");
             File.Delete(path + $"\\Save.txt");
             base.Save();
