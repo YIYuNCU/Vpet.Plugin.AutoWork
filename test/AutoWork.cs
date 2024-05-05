@@ -417,6 +417,7 @@ namespace VPET.Evian.AutoWork
                 work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
             }
             var item = work[Function.Rnd.Next(work.Count)];
+            item=(Work)item.Clone();
             var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10)*1.00;
             Double = Double * 0.8;
             if (Double < 1)
