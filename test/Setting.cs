@@ -167,21 +167,7 @@ namespace VPET.Evian.AutoWork
         }
         public string LastDelStr { get; private set; } = DateTime.Now.ToShortDateString();
         /// <summary>
-        /// 上周暴力模式收益
-        /// </summary>
-        [Line]
-        public double VioEarn
-        {
-            get => vioearn; set
-            {
-                vioearn = value;
-                VioEarnStr = $"{value:f2}";
-            }
-        }
-        private double vioearn = 0;
-        public string VioEarnStr { get; private set; } = "0";
-        /// <summary>
-        /// 上周收益_Money
+        /// 收益_Money
         /// </summary>
         [Line]
         public double EarnM
@@ -195,7 +181,7 @@ namespace VPET.Evian.AutoWork
         private double earnm = 0;
         public string EarnMStr { get; private set; } = "0";
         /// <summary>
-        /// 上周收益_Experience
+        /// 收益_Experience
         /// </summary>
         [Line]
         public double EarnE
