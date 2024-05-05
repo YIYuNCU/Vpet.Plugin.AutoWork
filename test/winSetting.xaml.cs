@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Shapes;
 using VPet_Simulator.Core;
 using VPet_Simulator.Windows.Interface;
 
@@ -142,11 +143,22 @@ namespace VPET.Evian.AutoWork
         }
 
         private void Open_Saves(object sender, RoutedEventArgs e)
-        { 
-            if (Directory.Exists(GraphCore.CachePath + @"\Saves"))
+        {
+            var o_path = GraphCore.CachePath + @"\Saves";
+            var n_path = vts.LoaddllPath("AutoWork") + @"\Saves";
+            if (Directory.Exists(o_path) && vts.LoaddllPath("AutoWork") != "")
             {
-                var path = GraphCore.CachePath + $"\\Saves";
-                Process.Start("explorer.exe",path);
+                Directory.Delete(n_path);
+                Directory.Move(o_path, n_path);
+                Process.Start("explorer.exe",n_path);
+            }
+            else if(vts.LoaddllPath("AutoWork") != "" && Directory.Exists(n_path))
+            {
+                Process.Start("explorer.exe", n_path);
+            }
+            else if(Directory.Exists(o_path))
+            {
+                Process.Start("explorer.exe", o_path);
             }
             else
             {

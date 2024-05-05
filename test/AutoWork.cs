@@ -17,6 +17,7 @@ using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Net.Http.Headers;
 using Microsoft.VisualBasic;
+using System.Diagnostics;
 
 namespace VPET.Evian.AutoWork
 {
@@ -25,6 +26,8 @@ namespace VPET.Evian.AutoWork
         public Setting Set;
 
         DateTime StartTime;
+        string Mpath = "";
+        string Spath = "";
         public override string PluginName => "AutoWork";
 #pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
         public AutoWork(IMainWindow mainwin) : base(mainwin)
@@ -90,8 +93,20 @@ namespace VPET.Evian.AutoWork
             menuItem.Click += (s, e) => { Setting(); };
             modset.Items.Add(menuItem);
             ///添加存储区
-            if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
-                Directory.CreateDirectory(GraphCore.CachePath + @"\Saves");
+            if(LoaddllPath("AutoWork")!= "")
+            {
+                Mpath = LoaddllPath("AutoWork");
+                if (!Directory.Exists(Mpath + @"\Saves"))
+                    Directory.CreateDirectory(Mpath + @"\Saves");
+                Spath = Mpath + @"\Saves";
+            }
+            else
+            {
+                Mpath = GraphCore.CachePath;
+                if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
+                    Directory.CreateDirectory(GraphCore.CachePath + @"\Saves");
+                Spath = Mpath + @"\Saves";
+            }
             ///获取工作
             MW.Main.WorkList(out ws, out ss, out ps);
             ///确定是否存在工作
@@ -178,31 +193,11 @@ namespace VPET.Evian.AutoWork
             {
                 if(Set.Work==true)
                 {
-                    List<Work> work = ws.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
-                    !x.IsOverLoad()); //不超模
-                    work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.WorkSet);
-                    if (work.Count==0)
-                    {
-                        Set.Work = false;
-                        MessageBoxX.Show("无可选择的工作,请重新设置".Translate(), "错误".Translate(), 
-                            MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                        return;
-                    }
                     Set.Enable=true;
                     autowork_origin();
                 }
                 else if (Set.Study == true)
                 {
-                    List<Work> study = ss.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
-                    !x.IsOverLoad()); //不超模
-                    study = study.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
-                    if (study.Count==0)
-                    {
-                        Set.Study = false;
-                        MessageBoxX.Show("无可选择的学习,请重新设置".Translate(), "错误".Translate(),
-                            MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                        return;
-                    }
                     Set.Enable = true;
                     autowork_origin();
                 }
@@ -266,8 +261,7 @@ namespace VPET.Evian.AutoWork
         }
         private void storage(WorkTimer.FinishWorkInfo obj, int Double)
         {
-            var path = GraphCore.CachePath + $"\\Saves\\Save.txt";
-
+            var path = Spath + @"\Save.txt";
             var gains = 0.00;
             string WorkType = "";
             var pay = 0.0;
@@ -433,7 +427,17 @@ namespace VPET.Evian.AutoWork
         }
         private bool open_condition()
         {
-            if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
+            var o_path = GraphCore.CachePath + @"\Saves";
+            var n_path = LoaddllPath("AutoWork") + @"\Saves";
+            if (Directory.Exists(o_path) && LoaddllPath("AutoWork") != "")
+            {
+                if(Directory.Exists(n_path))
+                {
+                    Directory.Delete(n_path);
+                }
+                Directory.Move(o_path, n_path);
+            }
+            if (!Directory.Exists(Spath))
             {
                 MessageBoxX.Show("存储文件夹不存在，请重启桌宠以创建存储文件夹".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 return false;
@@ -444,7 +448,7 @@ namespace VPET.Evian.AutoWork
                 Set.Enable = false;
                 return false;
             }
-            if (Set.Study == true && MW.GameSavesData.GameSave.Money <= Set.MoneyMin)
+            if (Set.Study == true && MW.GameSavesData.GameSave.Money - Set.VioEarn * 0.2-100*(MW.GameSavesData.GameSave.Level-9) <= Set.MoneyMin) 
             {
                 Set.Study = false;
                 Set.Enable = false;
@@ -464,11 +468,11 @@ namespace VPET.Evian.AutoWork
                 if (work.Count == 0)
                 {
                     Set.Work = false;
+                    Set.Enable = false;
                     MessageBoxX.Show("无可选择的工作,请重新设置".Translate(), "错误".Translate(),
                         MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                     return false;
-                }
-                Set.Enable = true;
+                }               
             }
             else if (Set.Study == true)
             {
@@ -478,17 +482,17 @@ namespace VPET.Evian.AutoWork
                 if (study.Count == 0)
                 {
                     Set.Study = false;
+                    Set.Enable = false;
                     MessageBoxX.Show("无可选择的学习,请重新设置".Translate(), "错误".Translate(),
                         MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                     return false;
-                }
-                Set.Enable = true;
+                }                
             }
             DateTime ld;
             DateTime ldnew;
             ld = Convert.ToDateTime(Set.LastDel).AddDays(7);
             ldnew = DateTime.Now;
-            if (ld >= ldnew.AddDays(14)) 
+            if (ld >= ldnew.AddDays(14) || ldnew >= ld) 
             {
                 if (MW.GameSavesData.GameSave.Money < Set.VioEarn * 0.2 && Set.Violence == true)
                 {
@@ -512,39 +516,6 @@ namespace VPET.Evian.AutoWork
                     MessageBoxX.Show("剩余金钱不够购买本mod功能月卡".Translate() + "\r\n"
                         + "预计需要".Translate() + ((MW.GameSavesData.GameSave.Level - 10) * 100).ToString().Translate()
                         , "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                    return false;
-                }
-                else
-                {
-                    MW.GameSavesData.GameSave.Money -= (MW.GameSavesData.GameSave.Level - 10) * 100;
-                    Set.LastDel = DateTime.Now.ToShortDateString();
-                    MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = Set.LastDel;
-                }
-            }
-            if (ldnew >= ld) 
-            {
-                if (MW.GameSavesData.GameSave.Money < Set.VioEarn * 0.2 && Set.Violence == true)
-                {
-                    Set.Enable = false;
-                    Set.Violence = false;
-                    MessageBoxX.Show("剩余金钱不够购买暴力模式功能月卡".Translate() + "\r\n"
-                        + "预计需要".Translate() + (Set.VioEarn * 0.2).ToString().Translate()
-                        , "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                    return false;
-                }
-                else
-                {
-                    MW.GameSavesData.GameSave.Money -= Set.VioEarn * 0.2;
-                    Set.VioEarn = 0;
-                    MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = Set.VioEarn.ToString();
-                }
-                if (MW.GameSavesData.GameSave.Money < (MW.GameSavesData.GameSave.Level - 10) * 100) 
-                {
-                    Set.Enable = false;
-                    Set.Violence = false;
-                    MessageBoxX.Show("剩余金钱不够购买本mod功能月卡".Translate() + "\r\n"
-                        + "预计需要".Translate() + ((MW.GameSavesData.GameSave.Level - 10) * 100).ToString().Translate()
-                        , "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5) ;
                     return false;
                 }
                 else
@@ -602,8 +573,8 @@ namespace VPET.Evian.AutoWork
         }
         public override void EndGame()
         {
-            var path = GraphCore.CachePath + @"\Saves";
-            if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
+            var path = Spath;
+            if (!Directory.Exists(path))
             {
                 base.EndGame();
                 return;
@@ -637,29 +608,29 @@ namespace VPET.Evian.AutoWork
             base.Save();
             base.EndGame();
         }
-        ////public string LoaddllPath(string dll)
-        ////{
-        ////    Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        public string LoaddllPath(string dll)
+        {
+            Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-        ////    foreach (Assembly assembly in loadedAssemblies)
-        ////    {
-        ////        string assemblyName = assembly.GetName().Name;
+            foreach (Assembly assembly in loadedAssemblies)
+            {
+                string assemblyName = assembly.GetName().Name;
 
-        ////        if (assemblyName == dll)
-        ////        {
-        ////            string assemblyPath = assembly.Location;
+                if (assemblyName == dll)
+                {
+                    string assemblyPath = assembly.Location;
 
-        ////            string assemblyDirectory = System.IO.Path.GetDirectoryName(assemblyPath);
+                    string assemblyDirectory = System.IO.Path.GetDirectoryName(assemblyPath);
 
-        ////            string parentDirectory = Directory.GetParent(assemblyDirectory).FullName;
+                    string parentDirectory = Directory.GetParent(assemblyDirectory).FullName;
 
 
 
-        ////            return parentDirectory;
-        ////        }
-        ////    }
-        ////    return "";
-        ////}
+                    return parentDirectory;
+                }
+            }
+            return "";
+        }
     }
 }
 
