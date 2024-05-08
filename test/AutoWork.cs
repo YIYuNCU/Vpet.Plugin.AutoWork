@@ -61,8 +61,19 @@ namespace VPET.Evian.AutoWork
             }
             else
             {
-                MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = Set.LastDel;
                 MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = Set.VioEarn.ToString("0.00");
+            }
+            if (MW.GameSavesData["AutoWork"].GetString("Bonus") == null)
+            {
+                MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = DateTime.Now.AddDays(1).ToShortDateString();
+                MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = 0.ToString("0.00");
+                MW.GameSavesData["AutoWork"][(gstr)"Bonus"] = 0.ToString("0.00");
+            }
+            else if (MW.GameSavesData["AutoWork"].GetString("Bonus") == 1.ToString())
+            {
+                MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = DateTime.Now.AddDays(1).ToShortDateString();
+                MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = 0.ToString("0.00");
+                MW.GameSavesData["AutoWork"][(gstr)"Bonus"] = 0.ToString("0.00");
             }
             if (MW.GameSavesData["AutoWork"].GetString("EarnM") != null)
             {
@@ -433,6 +444,19 @@ namespace VPET.Evian.AutoWork
             {
                 if(Directory.Exists(n_path))
                 {
+                    var i = 0;
+                    for (i = 0; i < 1000; i++) 
+                    {
+                        if (File.Exists(n_path + $"\\Save" + i.ToString() + $".txt"))
+                        {
+                            File.Delete(n_path + $"\\Save" + i.ToString() + $".txt");
+                        }
+                        if (File.Exists(n_path + $"\\Save" + $".txt"))
+                        {
+                            File.Delete(n_path + $"\\Save" + $".txt");
+                        }
+                    }
+                    
                     Directory.Delete(n_path);
                 }
                 Directory.Move(o_path, n_path);
@@ -498,7 +522,7 @@ namespace VPET.Evian.AutoWork
                 {
                     Set.Enable = false;
                     Set.Violence = false;
-                    MessageBoxX.Show("剩余金钱不够购买暴力模式功能月卡".Translate() + "\r\n"
+                    MessageBoxX.Show("剩余金钱不够购买暴力模式功能周卡".Translate() + "\r\n"
                         + "预计需要".Translate() + (Set.VioEarn * 0.2).ToString().Translate()
                         , "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                     return false;
@@ -513,7 +537,7 @@ namespace VPET.Evian.AutoWork
                 {
                     Set.Enable = false;
                     Set.Violence = false;
-                    MessageBoxX.Show("剩余金钱不够购买本mod功能月卡".Translate() + "\r\n"
+                    MessageBoxX.Show("剩余金钱不够购买本mod功能周卡".Translate() + "\r\n"
                         + "预计需要".Translate() + ((MW.GameSavesData.GameSave.Level - 10) * 100).ToString().Translate()
                         , "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                     return false;
@@ -590,7 +614,7 @@ namespace VPET.Evian.AutoWork
                     File.Delete(path + $"\\Save" + Convert.ToString(Set.SaveNum - 20) + $".txt");
                 Set.SaveNum++;
             }
-            else if(Set.SaveNum >= 60000)
+            else if(Set.SaveNum >= 1000)
             {
                 Set.SaveNum = 0;
             }

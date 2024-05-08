@@ -148,7 +148,22 @@ namespace VPET.Evian.AutoWork
             var n_path = vts.LoaddllPath("AutoWork") + @"\Saves";
             if (Directory.Exists(o_path) && vts.LoaddllPath("AutoWork") != "")
             {
-                Directory.Delete(n_path);
+                if (Directory.Exists(n_path))
+                {
+                    var i = 0;
+                    for (i = 0; i < 1000; i++)
+                    {
+                        if (File.Exists(n_path + $"\\Save" + i.ToString() + $".txt"))
+                        {
+                            File.Delete(n_path + $"\\Save" + i.ToString() + $".txt");
+                        }
+                        if (File.Exists(n_path + $"\\Save" + $".txt"))
+                        {
+                            File.Delete(n_path + $"\\Save" + $".txt");
+                        }
+                    }
+                    Directory.Delete(n_path);
+                }
                 Directory.Move(o_path, n_path);
                 Process.Start("explorer.exe",n_path);
             }
