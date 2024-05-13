@@ -75,22 +75,22 @@ namespace VPET.Evian.AutoWork
                 MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = 0.ToString("0.00");
                 MW.GameSavesData["AutoWork"][(gstr)"Bonus"] = 0.ToString("0.00");
             }
-            if (MW.GameSavesData["AutoWork"].GetString("EarnM") != null)
-            {
-                Set.EarnM = MW.GameSavesData["AutoWork"].GetDouble("EarnM");
-            }
-            else
-            {
-                MW.GameSavesData["AutoWork"][(gstr)"EarnM"] = Set.EarnM.ToString("0.00");
-            }
-            if (MW.GameSavesData["AutoWork"].GetString("EarnE") != null)
-            {
-                Set.EarnE = MW.GameSavesData["AutoWork"].GetDouble("EarnE");
-            }
-            else
-            {
-                MW.GameSavesData["AutoWork"][(gstr)"EarnE"] = Set.EarnE.ToString("0.00");
-            }
+            //if (MW.GameSavesData["AutoWork"].GetString("EarnM") != null)
+            //{
+            //    Set.EarnM = MW.GameSavesData["AutoWork"].GetDouble("EarnM");
+            //}
+            //else
+            //{
+            //    MW.GameSavesData["AutoWork"][(gstr)"EarnM"] = Set.EarnM.ToString("0.00");
+            //}
+            //if (MW.GameSavesData["AutoWork"].GetString("EarnE") != null)
+            //{
+            //    Set.EarnE = MW.GameSavesData["AutoWork"].GetDouble("EarnE");
+            //}
+            //else
+            //{
+            //    MW.GameSavesData["AutoWork"][(gstr)"EarnE"] = Set.EarnE.ToString("0.00");
+            //}
             Set.Income = MW.GameSavesData.GameSave.Money;
             ///Set.MinDeposit = MW.Set["AutoWork"].GetDouble("MinDeposit");
             ///添加列表项
