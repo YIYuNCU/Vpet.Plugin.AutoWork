@@ -527,7 +527,7 @@ namespace VPET.Evian.AutoWork
                         , "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                     return false;
                 }
-                else
+                else if(Set.Violence == true)
                 {
                     MW.GameSavesData.GameSave.Money -= Set.VioEarn * 0.2;
                     Set.VioEarn = 0;
