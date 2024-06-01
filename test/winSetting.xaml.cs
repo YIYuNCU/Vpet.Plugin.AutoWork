@@ -105,34 +105,13 @@ namespace VPET.Evian.AutoWork
                     }  
                 }
             }
-            if ((vts.Set.WorkSet <= vts.Set.WorkMax || vts.Set.Violence == true) && vts.Set.Work && vts.Set.Enable == true) ///满足工作条件
-            {
-                vts.autowork_origin();
-            }
-            else if((vts.Set.StudySet <= vts.Set.StudyMax || vts.Set.Violence == true) && vts.Set.Study && vts.Set.Enable == true) ///满足学习条件
+            if(vts.Set.Enable == true) ///满足学习条件
             {
                 vts.autowork_origin();
             }
             else if (vts.Set.Enable == false)
             {
                 Close();
-            }
-            else if (vts.Set.WorkSet > vts.Set.WorkMax && vts.Set.Work)
-            {
-                vts.Set.Enable = false;
-                SwitchOn.IsChecked = false;
-                vts.Set.WorkSet = Math.Round(vts.Set.WorkMax, 2);
-                WorkSet.Text=vts.Set.WorkSet.ToString("0.00");
-                MessageBoxX.Show("无可选择的工作,请重新设置".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                return;
-            }
-            else if (vts.Set.StudySet > vts.Set.StudyMax && vts.Set.Study)
-            {
-                vts.Set.Enable = false;
-                SwitchOn.IsChecked = false;
-                vts.Set.StudySet = Math.Round(vts.Set.StudyMax, 2);
-                StudySet.Text = vts.Set.StudySet.ToString("0.00");
-                MessageBoxX.Show("无可选择的学习,请重新设置".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 return;
             }
             else
@@ -141,7 +120,10 @@ namespace VPET.Evian.AutoWork
             }
             Close();
         }
-
+        private void Clear_Saces(object sender, RoutedEventArgs e)
+        {
+            vts.Clear_Saves();
+        }
         private void Open_Saves(object sender, RoutedEventArgs e)
         {
             var o_path = GraphCore.CachePath + @"\Saves";

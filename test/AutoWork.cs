@@ -18,6 +18,7 @@ using System.Reflection;
 using System.Net.Http.Headers;
 using Microsoft.VisualBasic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace VPET.Evian.AutoWork
 {
@@ -65,32 +66,16 @@ namespace VPET.Evian.AutoWork
             }
             if (MW.GameSavesData["AutoWork"].GetString("Bonus") == null)
             {
-                MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = DateTime.Now.AddDays(1).ToShortDateString();
+                MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = DateTime.Now.AddDays(7).ToShortDateString();
                 MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = 0.ToString("0.00");
                 MW.GameSavesData["AutoWork"][(gstr)"Bonus"] = 0.ToString("0.00");
             }
             else if (MW.GameSavesData["AutoWork"].GetString("Bonus") == 1.ToString())
             {
-                MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = DateTime.Now.AddDays(1).ToShortDateString();
+                MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = DateTime.Now.AddDays(7).ToShortDateString();
                 MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = 0.ToString("0.00");
                 MW.GameSavesData["AutoWork"][(gstr)"Bonus"] = 0.ToString("0.00");
             }
-            //if (MW.GameSavesData["AutoWork"].GetString("EarnM") != null)
-            //{
-            //    Set.EarnM = MW.GameSavesData["AutoWork"].GetDouble("EarnM");
-            //}
-            //else
-            //{
-            //    MW.GameSavesData["AutoWork"][(gstr)"EarnM"] = Set.EarnM.ToString("0.00");
-            //}
-            //if (MW.GameSavesData["AutoWork"].GetString("EarnE") != null)
-            //{
-            //    Set.EarnE = MW.GameSavesData["AutoWork"].GetDouble("EarnE");
-            //}
-            //else
-            //{
-            //    MW.GameSavesData["AutoWork"][(gstr)"EarnE"] = Set.EarnE.ToString("0.00");
-            //}
             Set.Income = MW.GameSavesData.GameSave.Money;
             ///Set.MinDeposit = MW.Set["AutoWork"].GetDouble("MinDeposit");
             ///添加列表项
@@ -117,66 +102,6 @@ namespace VPET.Evian.AutoWork
                 if (!Directory.Exists(GraphCore.CachePath + @"\Saves"))
                     Directory.CreateDirectory(GraphCore.CachePath + @"\Saves");
                 Spath = Mpath + @"\Saves";
-            }
-            ///获取工作
-            MW.Main.WorkList(out ws, out ss, out ps);
-            ///确定是否存在工作
-            if (ws.Count == 0)
-            {
-                MessageBoxX.Show("无可选择的工作".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                return;
-            }
-            ///确定是否存在学习
-            if (ss.Count == 0)
-            {
-                MessageBoxX.Show("无可选择的学习".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                return;
-            }
-            ///确定工作收支比上限
-            var value = 1.4;
-            var num = 0;
-            List<Work> work;
-            while (value > 1 && num == 0) ///收支比小于1的亏本，不考虑
-            {
-                value -= 0.01;
-                work = ws.FindAll(x => (x.Get() / x.Spend()) >= value && //正收益
-                !x.IsOverLoad() &&//不超模
-                MW.GameSavesData.GameSave.Level>= x.LevelLimit
-                ); 
-                num = work.Count;
-            }
-            if (value == 1) 
-            {
-                MessageBoxX.Show("无可选择的工作".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                return;
-            }
-            Set.WorkMax = value;
-            if(Set.WorkSet == 0)
-            {
-                Set.WorkSet = Math.Round(Set.WorkMax - 0.01, 2);
-            }
-            ///确定学习收支比上限
-            value = 1.4;
-            num = 0;
-            List<Work> study;
-            while (value > 1 && num == 0) ///收支比小于1的亏本，不考虑
-            {
-                value -= 0.01;
-                study = ss.FindAll(x => (x.Get() / x.Spend()) >= value && //正收益
-                !x.IsOverLoad() &&//不超模
-                MW.GameSavesData.GameSave.Level >= x.LevelLimit
-                );
-                num = study.Count;
-            }
-            if (value == 1)  
-            {
-                MessageBoxX.Show("无可选择的学习".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                return;
-            }
-            Set.StudyMax = value;
-            if(Set.StudySet == 0)
-            {
-                Set.StudySet = Math.Round(Set.StudyMax - 0.01, 2);
             }
             ///将自动购买功能挂在FinishWorkHandle上
             MW.Main.WorkTimer.E_FinishWork += autowork;
@@ -411,19 +336,15 @@ namespace VPET.Evian.AutoWork
             List<Work> work;
             if (type)
             {
-                work = ws.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
-                    !x.IsOverLoad()); //不超模
-                work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.WorkSet);
+                work = ws; 
             }
             else
             {
-                work = ss.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
-                    !x.IsOverLoad()); //不超模
-                work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
+                work = ss; 
             }
             var item = work[Function.Rnd.Next(work.Count)];
             item=(Work)item.Clone();
-            var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10)*1.00;
+            var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10) * 1.00;
             Double = Double * 0.8;
             if (Double < 1)
             {
@@ -435,6 +356,13 @@ namespace VPET.Evian.AutoWork
             nowwork = item;
             ///MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
             MW.Main.StartWork(item);
+        }
+        public void Clear_Saves()
+        {
+            ws = null;
+            ws = new List<Work>();
+            ss = null;
+            ss = new List<Work>();
         }
         private bool open_condition()
         {
@@ -484,33 +412,27 @@ namespace VPET.Evian.AutoWork
                 MessageBoxX.Show("等级低于10级，不满足开启条件".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 return false;
             }
-            if (Set.Work == true)
+            ///获取工作
+            foreach (var work in MW.Core.Graph.GraphConfig.Works)
             {
-                List<Work> work = ws.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
-                !x.IsOverLoad()); //不超模
-                work = work.FindAll(x => (x.Get() / x.Spend()) >= Set.WorkSet);
-                if (work.Count == 0)
-                {
-                    Set.Work = false;
-                    Set.Enable = false;
-                    MessageBoxX.Show("无可选择的工作,请重新设置".Translate(), "错误".Translate(),
-                        MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                    return false;
-                }               
+                if (MW.Set["work_star"].GetBool(work.Name) && work.Type == Work.WorkType.Work)
+                    ws.Add(work);
             }
-            else if (Set.Study == true)
+            ///获取学习
+            foreach (var work in MW.Core.Graph.GraphConfig.Works)
             {
-                List<Work> study = ss.FindAll(x => (x.Get() / x.Spend()) >= 1.0 && //正收益
-                !x.IsOverLoad()); //不超模
-                study = study.FindAll(x => (x.Get() / x.Spend()) >= Set.StudySet);
-                if (study.Count == 0)
-                {
-                    Set.Study = false;
-                    Set.Enable = false;
-                    MessageBoxX.Show("无可选择的学习,请重新设置".Translate(), "错误".Translate(),
-                        MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                    return false;
-                }                
+                if (MW.Set["work_star"].GetBool(work.Name) && work.Type == Work.WorkType.Study)
+                    ss.Add(work);
+            }
+            if(ws.Count == 0 && Set.Work == true && Set.Violence == false)
+            {
+                MessageBoxX.Show("无可选择的工作, 请重新设置".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                return false;
+            }
+            if (ss.Count == 0 && Set.Study == true && Set.Violence == false)
+            {
+                MessageBoxX.Show("无可选择的学习, 请重新设置".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
+                return false;
             }
             DateTime ld;
             DateTime ldnew;
