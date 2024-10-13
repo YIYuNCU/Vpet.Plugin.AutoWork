@@ -52,32 +52,7 @@ namespace VPET.Evian.AutoWork
             Set.MoneyMin = MW.Set["AutoWork"].GetDouble("MoneyMin");
             Set.SaveNum = MW.Set["AutoWork"].GetInt("SaveNum");
             Set.Violence = MW.Set["AutoWork"].GetBool("Violence");
-            if (MW.GameSavesData["AutoWork"].GetString("LastDel") != null)
-                Set.LastDel = MW.GameSavesData["AutoWork"].GetString("LastDel");
-            else
-                MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = Set.LastDel;
-            if (MW.GameSavesData["AutoWork"].GetString("VioEarn") != null)
-            {
-                Set.VioEarn = MW.GameSavesData["AutoWork"].GetDouble("VioEarn");
-            }
-            else
-            {
-                MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = Set.VioEarn.ToString("0.00");
-            }
-            if (MW.GameSavesData["AutoWork"].GetString("Bonus") == null)
-            {
-                MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = DateTime.Now.AddDays(7).ToShortDateString();
-                MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = 0.ToString("0.00");
-                MW.GameSavesData["AutoWork"][(gstr)"Bonus"] = 0.ToString("0.00");
-            }
-            else if (MW.GameSavesData["AutoWork"].GetString("Bonus") == 1.ToString())
-            {
-                MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = DateTime.Now.AddDays(7).ToShortDateString();
-                MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = 0.ToString("0.00");
-                MW.GameSavesData["AutoWork"][(gstr)"Bonus"] = 0.ToString("0.00");
-            }
             Set.Income = MW.GameSavesData.GameSave.Money;
-            ///Set.MinDeposit = MW.Set["AutoWork"].GetDouble("MinDeposit");
             ///添加列表项
             MenuItem modset = MW.Main.ToolBar.MenuMODConfig;
             modset.Visibility = Visibility.Visible;
@@ -210,29 +185,11 @@ namespace VPET.Evian.AutoWork
             {
                 gains = Set.Income - MW.GameSavesData.GameSave.Money;
                 gains = 0 - gains;
-                if(Set.Violence == true)
-                {
-                    Set.VioEarn += Math.Abs(gains);
-                    MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = Set.VioEarn.ToString();
-                }
-                Set.EarnM += Math.Abs(gains);
-                MW.GameSavesData["AutoWork"][(gstr)"EarnM"] = Set.EarnM.ToString();
-                MW.GameSavesData.GameSave.Money -= 0.2 * gains;
-                gains -= 0.2 * gains;
                 WorkType = "工作";
             }
             else if (obj.work.Type == Work.WorkType.Study)
             {
                 pay = Set.Income - MW.GameSavesData.GameSave.Money;
-                MW.GameSavesData.GameSave.Money -= 0.2 * pay;
-                if(Set.Violence == true)
-                {
-                    Set.VioEarn += Math.Abs(obj.count * 0.05);
-                    MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = Set.VioEarn.ToString();
-                }
-                Set.EarnE += Math.Abs(obj.count);
-                MW.GameSavesData["AutoWork"][(gstr)"EarnE"] = Set.EarnE.ToString();
-                pay += 0.2 * pay;
                 WorkType = "学习";
             }
             StreamWriter sw;
@@ -345,7 +302,7 @@ namespace VPET.Evian.AutoWork
             var item = work[Function.Rnd.Next(work.Count)];
             item=(Work)item.Clone();
             var Double = Math.Min(4000, MW.GameSavesData.GameSave.Level) / (item.LevelLimit + 10) * 1.00;
-            Double = Double * 0.8;
+            Double = Double * 0.9;
             if (Double < 1)
             {
                 Double = 1;
@@ -354,7 +311,6 @@ namespace VPET.Evian.AutoWork
             Set.DOUBLE = Convert.ToInt32(Double);
             item = FIXOverLoad(item);
             nowwork = item;
-            ///MessageBoxX.Show(Convert.ToInt32(Double).ToString(), "倍率".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info, DefaultButton.YesOK, 5);
             MW.Main.StartWork(item);
         }
         public void Clear_Saves()
@@ -394,13 +350,13 @@ namespace VPET.Evian.AutoWork
                 MessageBoxX.Show("存储文件夹不存在，请重启桌宠以创建存储文件夹".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 return false;
             }
-            if (MW.GameSavesData.GameSave.Mode == IGameSave.ModeType.PoorCondition)
+            if (MW.GameSavesData.GameSave.Mode == IGameSave.ModeType.PoorCondition && MW.GameSavesData.GameSave.Health < 50)
             {
                 MessageBoxX.Show("健康值过低，请补充健康值后再开启".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 Set.Enable = false;
                 return false;
             }
-            if (Set.Study == true && MW.GameSavesData.GameSave.Money - Set.VioEarn * 0.2-100*(MW.GameSavesData.GameSave.Level-9) <= Set.MoneyMin) 
+            if (Set.Study == true && MW.GameSavesData.GameSave.Money <= Set.MoneyMin) 
             {
                 Set.Study = false;
                 Set.Enable = false;
@@ -433,43 +389,6 @@ namespace VPET.Evian.AutoWork
             {
                 MessageBoxX.Show("无可选择的学习, 请重新设置".Translate(), "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
                 return false;
-            }
-            DateTime ld;
-            DateTime ldnew;
-            ld = Convert.ToDateTime(Set.LastDel).AddDays(7);
-            ldnew = DateTime.Now;
-            if (ld >= ldnew.AddDays(14) || ldnew >= ld) 
-            {
-                if (MW.GameSavesData.GameSave.Money < Set.VioEarn * 0.2 && Set.Violence == true)
-                {
-                    Set.Enable = false;
-                    Set.Violence = false;
-                    MessageBoxX.Show("剩余金钱不够购买暴力模式功能周卡".Translate() + "\r\n"
-                        + "预计需要".Translate() + (Set.VioEarn * 0.2).ToString().Translate()
-                        , "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                    return false;
-                }
-                else if(Set.Violence == true)
-                {
-                    MW.GameSavesData.GameSave.Money -= Set.VioEarn * 0.2;
-                    Set.VioEarn = 0;
-                    MW.GameSavesData["AutoWork"][(gstr)"VioEarn"] = Set.VioEarn.ToString();
-                }
-                if (MW.GameSavesData.GameSave.Money < (MW.GameSavesData.GameSave.Level - 10) * 100)
-                {
-                    Set.Enable = false;
-                    Set.Violence = false;
-                    MessageBoxX.Show("剩余金钱不够购买本mod功能周卡".Translate() + "\r\n"
-                        + "预计需要".Translate() + ((MW.GameSavesData.GameSave.Level - 10) * 100).ToString().Translate()
-                        , "错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error, DefaultButton.YesOK, 5);
-                    return false;
-                }
-                else
-                {
-                    MW.GameSavesData.GameSave.Money -= (MW.GameSavesData.GameSave.Level - 10) * 100;
-                    Set.LastDel = DateTime.Now.ToShortDateString();
-                    MW.GameSavesData["AutoWork"][(gstr)"LastDel"] = Set.LastDel;
-                }
             }
             return true;
         }
@@ -550,10 +469,6 @@ namespace VPET.Evian.AutoWork
             }
             StreamWriter sw = new StreamWriter(path + $"\\Save.txt", true, Encoding.Unicode);
             sw.WriteLine("");
-            sw.WriteLine("总经验收益".Translate().ToString() + " " + Set.EarnE.ToString("0.00").Translate().ToString());
-            Set.EarnE = 0;
-            sw.WriteLine("总金钱收益".Translate().ToString() + " " + Set.EarnM.ToString("0.00").Translate().ToString());
-            Set.EarnM = 0;
             sw.Close();
             sw = null;
             MW.Set["AutoWork"] = LPSConvert.SerializeObject(Set, "AutoWork");
